@@ -53,11 +53,9 @@ const ValidateSignature = async (req) => {
 				APP_SECRET
 			);
 			req.user = payload;
-			return true;
 		} else {
 			throw new AuthorizationError(`No token found`);
 		}
-		return false;
 	} catch (e) {
 		throw new AuthorizationError(`Not Authorized ${e}`);
 	}
@@ -156,6 +154,20 @@ const SubscribeMeaage = async () => {
 	}
 };
 
+const FilterValues = (fields, not_allowed_values, obj) => {
+	try {
+		if (!fields) fields = [];
+		if (!not_allowed_values) not_allowed_values = [];
+
+		for (let field of fields)
+			for (let value of not_allowed_values)
+				if (obj[field] === value)
+					throw new Error(`${field} cannot contain ${value} `);
+	} catch (e) {
+		throw new BadRequestError(e);
+	}
+};
+
 module.exports = {
 	GenerateSalt,
 	GeneratePassword,
@@ -170,4 +182,5 @@ module.exports = {
 	CanSendOTP,
 	CreateChannel,
 	PublishMessage,
+	FilterValues,
 };

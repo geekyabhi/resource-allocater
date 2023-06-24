@@ -187,7 +187,7 @@ class UserRepository {
 			throw new APIError(
 				"API Error",
 				STATUS_CODES.INTERNAL_ERROR,
-				`Error while fetching user ${e}`
+				`Error while updating user ${e}`
 			);
 		}
 	}

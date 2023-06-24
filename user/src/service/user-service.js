@@ -7,6 +7,7 @@ const {
 	FormateData,
 	ValidatePassword,
 	GenerateSignature,
+	FilterValues,
 } = require("../utils/functions");
 
 const { APIError, BadRequestError } = require("../utils/error/app-errors");
@@ -28,6 +29,25 @@ class UserService {
 			} = inputs;
 
 			let exis_user = 0;
+
+			FilterValues(
+				[
+					"first_name",
+					"last_name",
+					"email",
+					"phone_number",
+					"password",
+				],
+				[null, ""],
+				{
+					first_name,
+					last_name,
+					email,
+					password,
+					gender,
+					phone_number,
+				}
+			);
 
 			exis_user = await this.repository.FindUsersCount({ email });
 
@@ -141,7 +161,36 @@ class UserService {
 				}
 			}
 
-			console.log(filtered_updates);
+			FilterValues(
+				["email", "phone_number", "password"],
+				[null, ""],
+				filtered_updates
+			);
+
+			if (
+				filtered_updates.phone_number &&
+				(await this.repository.FindUsersCount({
+					phone_number: filtered_updates.phone_number,
+				})) > 0
+			)
+				throw new BadRequestError("Number already exist");
+
+			if (
+				filtered_updates.email &&
+				(await this.repository.FindUsersCount({
+					email: filtered_updates.email,
+				})) > 0
+			)
+				throw new BadRequestError("Email Already exist");
+
+			if (filtered_updates.password) {
+				const salt = await GenerateSalt();
+				const userPassword = await GeneratePassword(
+					filtered_updates.password,
+					salt
+				);
+				filtered_updates.password = userPassword;
+			}
 
 			const user = await this.repository.UpdateUser(id, filtered_updates);
 			return user;

@@ -92,9 +92,29 @@ module.exports = (app, redisClient) => {
 	app.get("/", async (req, res, next) => {
 		try {
 			const filters = req.query;
-			console.log(filters);
 			const data = await service.FindAllUsers(filters);
 			return res.json({ success: true, data });
+		} catch (e) {
+			next(e);
+		}
+	});
+
+	app.put("/", Auth, async (req, res, next) => {
+		try {
+			const updates = req.body;
+			const id = req.user.id;
+			const data = await service.UpdateUser(id, updates);
+			return res.json({ success: true, data });
+		} catch (e) {
+			next(e);
+		}
+	});
+
+	app.get("/profile", Auth, async (req, res, next) => {
+		try {
+			const id = req.user.id;
+			const user = await service.FindOneUser({ id: id });
+			return res.json({ success: true, data: user });
 		} catch (e) {
 			next(e);
 		}
