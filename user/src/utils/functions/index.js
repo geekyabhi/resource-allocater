@@ -119,35 +119,42 @@ const CanSendOTP = (redisClient, key_email) => {
 	});
 };
 
-// const CreateChannel = async () => {
-// 	try {
-// 		const connection = await amqplib.connect(MESSAGE_QUEUE_URL);
-// 		const channel = await connection.createChannel();
-// 		await channel.assertExchange(EXCHANGE_NAME, "direct", false);
-// 		return channel;
-// 	} catch (e) {
-// 		throw new Error(e);
-// 	}
-// };
+const SendOTP = async (otp, user_data) => {
+	try {
+	} catch (e) {
+		throw new Error(e);
+	}
+};
 
-// const PublishMessage = async (channel, binding_key, message) => {
-// 	try {
-// 		await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
-// 		console.log(
-// 			"Message has been published from customer service",
-// 			message
-// 		);
-// 	} catch (e) {
-// 		throw new AsyncAPIError(e);
-// 	}
-// };
+const CreateChannel = async () => {
+	try {
+		const connection = await amqplib.connect(MESSAGE_QUEUE_URL);
+		const channel = await connection.createChannel();
+		await channel.assertExchange(EXCHANGE_NAME, "direct", false);
+		return channel;
+	} catch (e) {
+		throw new Error(e);
+	}
+};
 
-// const SubscribeMeaage = async () => {
-// 	try {
-// 	} catch (e) {
-// 		throw new AsyncAPIError(e);
-// 	}
-// };
+const PublishMessage = async (channel, binding_key, message) => {
+	try {
+		await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
+		console.log(
+			"Message has been published from customer service",
+			message
+		);
+	} catch (e) {
+		throw new AsyncAPIError(e);
+	}
+};
+
+const SubscribeMeaage = async () => {
+	try {
+	} catch (e) {
+		throw new AsyncAPIError(e);
+	}
+};
 
 module.exports = {
 	GenerateSalt,
@@ -161,6 +168,6 @@ module.exports = {
 	GenerateUniqueString,
 	VerifyOTP,
 	CanSendOTP,
-	// CreateChannel,
-	// PublishMessage,
+	CreateChannel,
+	PublishMessage,
 };

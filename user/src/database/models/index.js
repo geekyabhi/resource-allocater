@@ -1,35 +1,31 @@
-const db = require("../connect/index");
+const UserModel = require("./User");
 
-const createUserTable = async () => {
-	return new Promise(async (resolve, reject) => {
+class Models {
+	constructor(db) {
+		this.db = db;
+		this.userModel = new UserModel(db, "users");
+	}
+
+	async ifTableExists(tableName) {
 		try {
-			await db.schema.createTable("users", (table) => {
-				table.uuid("id").primary().defaultTo(db.raw("uuid()"));
-				table.string("first_name");
-				table.string("last_name");
-				table.string("email").unique();
-				table.string("password", 355);
-				table.string("gender", 255);
-				table.string("salt", 255);
-				table.boolean("verified").defaultTo(false);
-				table.timestamp("created_at").defaultTo(db.fn.now());
-			});
-			resolve("User table created");
+			const tableExists = await this.db.schema.hasTable(tableName);
+			return tableExists;
 		} catch (e) {
-			reject(`Error while creating user table :${e}`);
+			return false;
 		}
-	});
-};
+	}
 
-const createTables = async () => {
-	return new Promise(async (resolve, reject) => {
-		try {
-			await createUserTable();
-			resolve("All tables created");
-		} catch (e) {
-			reject(e);
-		}
-	});
-};
+	async createTables() {
+		return new Promise(async (resolve, reject) => {
+			try {
+				if (!(await this.ifTableExists(this.userModel.tableName)))
+					await this.userModel.createUserTable();
+				resolve("All tables created");
+			} catch (e) {
+				reject(e);
+			}
+		});
+	}
+}
 
-module.exports = { createTables };
+module.exports = Models;

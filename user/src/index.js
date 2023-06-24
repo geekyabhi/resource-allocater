@@ -1,5 +1,7 @@
 const express = require("express");
 const { PORT } = require("./config");
+const db = require("./database/connect");
+const Models = require("./database/models");
 const { createTables } = require("./database/models");
 const expressApp = require("./express-engine");
 const { ConnectRedis } = require("./utils/cache/index");
@@ -7,7 +9,8 @@ const StartServer = async () => {
 	try {
 		const app = express();
 
-		await createTables();
+		const models = new Models(db);
+		await models.createTables();
 		const redisClient = await ConnectRedis();
 		await expressApp(app, redisClient);
 

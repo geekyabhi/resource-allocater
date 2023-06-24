@@ -1,5 +1,5 @@
 const redis = require("redis");
-const { REDIS_URL } = require("../../config/");
+const { REDIS_URL } = require("../../config");
 
 const ConnectRedis = async () => {
 	return new Promise(async (resolve, reject) => {

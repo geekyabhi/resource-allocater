@@ -59,8 +59,8 @@ module.exports = (app, redisClient) => {
 
 			console.log(otp);
 
-			await RedisSET(redisClient, email, otp, 5);
-			// sendOTPFunction()
+			await RedisSET(redisClient, email, otp, 60);
+			// sendOTPFunction();
 
 			return res.json({ success: true, data: "OTP send to the email" });
 		} catch (e) {
