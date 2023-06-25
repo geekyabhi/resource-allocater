@@ -1,18 +1,36 @@
 const express = require("express");
-const { PORT } = require("./config");
+const {
+	PORT,
+	MESSAGE_QUEUE_URL,
+	EXCHANGE_NAME,
+	REDIS_URL,
+	MAIL_BINDING_KEY,
+} = require("./config");
+
 const db = require("./database/connect");
-const Models = require("./database/models");
-const { createTables } = require("./database/models");
 const expressApp = require("./express-engine");
-const { ConnectRedis } = require("./utils/cache/index");
+
+const { Models } = require("./database/models");
+const { RabbitMQ } = require("./utils/queue");
+const { RedisUtil } = require("./utils/cache/");
+
 const StartServer = async () => {
 	try {
 		const app = express();
 
 		const models = new Models(db);
+		const rmq = new RabbitMQ(
+			MESSAGE_QUEUE_URL,
+			EXCHANGE_NAME,
+			MAIL_BINDING_KEY
+		);
+		const rds = new RedisUtil(REDIS_URL);
+
 		await models.createTables();
-		const redisClient = await ConnectRedis();
-		await expressApp(app, redisClient);
+		await rmq.CreateChannel();
+		await rds.ConnectRedis();
+
+		await expressApp(app, rds, rmq);
 
 		app.listen(PORT, () => {
 			console.log(`Customer server running to port ${PORT}`);

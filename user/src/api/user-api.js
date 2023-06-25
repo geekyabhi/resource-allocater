@@ -2,9 +2,14 @@ const Auth = require("../middlewares/auth");
 const { UserService } = require("../service/index");
 const { RedisSET, RedisGET } = require("../utils/cache");
 const { APIError } = require("../utils/error/app-errors");
-const { GenerateOTP, CanSendOTP, VerifyOTP } = require("../utils/functions");
+const {
+	GenerateOTP,
+	CanSendOTP,
+	VerifyOTP,
+	SendOTP,
+} = require("../utils/functions");
 
-module.exports = (app, redisClient) => {
+module.exports = (app, redisClient, rabbitMq) => {
 	const service = new UserService();
 
 	app.post("/signup", async (req, res, next) => {
@@ -26,6 +31,21 @@ module.exports = (app, redisClient) => {
 				gender,
 			});
 
+			const publishData = {
+				sms_notification: data.sms_notification,
+				email_notification: data.email_notification,
+				phone: data.phone_number,
+				first_name: data.first_name,
+				last_name: data.last_name,
+				email: data.email,
+				id: data.id,
+			};
+
+			rabbitMq.PublishMessage(
+				rabbitMq.MAIL_BINDING_KEY,
+				JSON.stringify({ ...publishData, event: "profile_registered" })
+			);
+
 			return res.json({ success: true, data });
 		} catch (e) {
 			next(e);
@@ -38,6 +58,11 @@ module.exports = (app, redisClient) => {
 
 			const { data } = await service.Login({ email, password });
 
+			rabbitMq.PublishMessage(
+				rabbitMq.MAIL_BINDING_KEY,
+				JSON.stringify({ ...data, event: "profile_loggedin" })
+			);
+
 			return res.json({ success: true, data });
 		} catch (e) {
 			next(e);
@@ -48,19 +73,21 @@ module.exports = (app, redisClient) => {
 		try {
 			const { email } = req.body;
 
-			const can_send = await CanSendOTP(redisClient, email);
-			if (!can_send)
+			const user_data = await service.FindOneUser({ email });
+
+			const data = await CanSendOTP(redisClient, email);
+			if (!data.can_send)
 				return res.json({
 					success: false,
-					data: "Cant send OTP too soon",
+					data: `Cant send OTP until ${data.time_remaining} seconds`,
 				});
 
 			const otp = GenerateOTP(6);
 
 			console.log(otp);
+			SendOTP(otp, user_data, rabbitMq);
 
-			await RedisSET(redisClient, email, otp, 60);
-			// sendOTPFunction();
+			await redisClient.RedisSET(email, otp, 60);
 
 			return res.json({ success: true, data: "OTP send to the email" });
 		} catch (e) {

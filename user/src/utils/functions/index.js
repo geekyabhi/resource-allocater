@@ -3,9 +3,7 @@ const jwt = require("jsonwebtoken");
 
 require("dotenv").config({ path: "./config/.env" });
 const { v4: uuid } = require("uuid");
-const amqplib = require("amqplib");
 const crypto = require("crypto");
-const { RedisGET } = require("../cache");
 const { BadRequestError, AuthorizationError } = require("../error/app-errors");
 //Utility functions
 
@@ -92,7 +90,7 @@ function GenerateUniqueString(length = 14) {
 const VerifyOTP = (redisClient, provided_otp, key_email) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const cache_otp = await RedisGET(redisClient, key_email);
+			const cache_otp = await redisClient.RedisGET(key_email);
 			if (provided_otp === "000000") resolve(true);
 			if (!cache_otp) throw new BadRequestError("OTP expired");
 			if (String(cache_otp) != String(provided_otp))
@@ -108,49 +106,36 @@ const VerifyOTP = (redisClient, provided_otp, key_email) => {
 const CanSendOTP = (redisClient, key_email) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const cache_otp = await RedisGET(redisClient, key_email);
-			if (cache_otp) resolve(false);
-			resolve(true);
+			const data = {};
+			const ttl = await redisClient.RedisTTL(key_email);
+			data["time_remaining"] = ttl;
+			data["can_send"] = ttl == 0 || ttl == -2 ? true : false;
+			resolve(data);
 		} catch (e) {
-			resolve(false);
+			reject(e);
 		}
 	});
 };
 
-const SendOTP = async (otp, user_data) => {
+const SendOTP = async (otp, user_data, rmq) => {
 	try {
-	} catch (e) {
-		throw new Error(e);
-	}
-};
-
-const CreateChannel = async () => {
-	try {
-		const connection = await amqplib.connect(MESSAGE_QUEUE_URL);
-		const channel = await connection.createChannel();
-		await channel.assertExchange(EXCHANGE_NAME, "direct", false);
-		return channel;
-	} catch (e) {
-		throw new Error(e);
-	}
-};
-
-const PublishMessage = async (channel, binding_key, message) => {
-	try {
-		await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
-		console.log(
-			"Message has been published from customer service",
-			message
+		const publishData = {
+			first_name: user_data.first_name,
+			last_name: user_data.last_name,
+			phone_number: user_data.phone_number,
+			sms_notification: user_data.sms_notification == 1 ? true : false,
+			email_notification:
+				user_data.email_notification == 1 ? true : false,
+			email: user_data.email,
+			id: user_data.id,
+			otp,
+		};
+		await rmq.PublishMessage(
+			rmq.MAIL_BINDING_KEY,
+			JSON.stringify({ ...publishData, event: "profile_verification" })
 		);
 	} catch (e) {
-		throw new AsyncAPIError(e);
-	}
-};
-
-const SubscribeMeaage = async () => {
-	try {
-	} catch (e) {
-		throw new AsyncAPIError(e);
+		throw new Error(e);
 	}
 };
 
@@ -180,7 +165,6 @@ module.exports = {
 	GenerateUniqueString,
 	VerifyOTP,
 	CanSendOTP,
-	CreateChannel,
-	PublishMessage,
 	FilterValues,
+	SendOTP,
 };

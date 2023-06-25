@@ -79,11 +79,24 @@ class AuthorizationError extends AppError {
 	}
 }
 
+class AsyncAPIError extends AppError {
+	constructor(description = "Message Queue error", errorStack) {
+		super(
+			"ASYNC_API_ERROR",
+			STATUS_CODES.BAD_REQUEST,
+			description,
+			true,
+			errorStack
+		);
+	}
+}
+
 module.exports = {
 	AppError,
 	APIError,
 	BadRequestError,
 	ValidationError,
 	AuthorizationError,
+	AsyncAPIError,
 	STATUS_CODES,
 };
