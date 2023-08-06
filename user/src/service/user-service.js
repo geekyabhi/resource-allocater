@@ -107,8 +107,8 @@ class UserService {
 
 			if (!validPassword) throw new BadRequestError("Wrong password");
 
-			if (!user.verified)
-				throw new BadRequestError("Account not Verified");
+			// if (!user.verified)
+			// 	throw new BadRequestError("Account not Verified");
 
 			const token = await GenerateSignature({
 				email: user.email,
@@ -145,6 +145,8 @@ class UserService {
 	async FindOneUser(filters) {
 		try {
 			const raw_user = await this.repository.FindOneUser(filters);
+			delete raw_user["salt"];
+			delete raw_user["password"];
 			return raw_user;
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
