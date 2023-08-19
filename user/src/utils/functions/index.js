@@ -81,6 +81,11 @@ const CreateUniqueName = (length = 6) => {
 	return id;
 };
 
+const GenerateUUID = () => {
+	let id = uuid();
+	return id;
+};
+
 function GenerateUniqueString(length = 14) {
 	const byteLength = Math.ceil(length / 2);
 	const randomBytes = crypto.randomBytes(byteLength).toString("hex");
@@ -167,4 +172,5 @@ module.exports = {
 	CanSendOTP,
 	FilterValues,
 	SendOTP,
+	GenerateUUID,
 };

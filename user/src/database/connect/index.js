@@ -1,4 +1,4 @@
-const knex = require("knex");
+const { Sequelize } = require("sequelize");
 
 const {
 	DB_NAME,
@@ -7,15 +7,25 @@ const {
 	DB_USERNAME,
 } = require("../../config/index");
 
-const db_config = {
-	client: "mysql2",
-	connection: {
-		host: DB_HOST,
-		user: DB_USERNAME,
-		password: DB_PASSWORD,
-		database: DB_NAME,
-	},
+let DB = {};
+
+const connectDB = () => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
+				host: DB_HOST,
+				dialect: "postgres",
+				logging: false,
+			});
+			await sequelize.authenticate();
+			console.log("Database connected".cyan);
+			DB["connection"] = sequelize;
+			resolve(sequelize);
+		} catch (e) {
+			console.log(e);
+			reject(`Error while connecting db ${e}`);
+		}
+	});
 };
 
-const db = knex(db_config);
-module.exports = db;
+module.exports = { connectDB, DB };

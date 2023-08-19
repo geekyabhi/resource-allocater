@@ -8,6 +8,7 @@ const {
 	ValidatePassword,
 	GenerateSignature,
 	FilterValues,
+	GenerateUUID,
 } = require("../utils/functions");
 
 const { APIError, BadRequestError } = require("../utils/error/app-errors");
@@ -50,7 +51,6 @@ class UserService {
 			);
 
 			exis_user = await this.repository.FindUsersCount({ email });
-
 			if (exis_user > 0) throw new BadRequestError("Email Already exist");
 
 			exis_user = await this.repository.FindUsersCount({ phone_number });
@@ -60,9 +60,7 @@ class UserService {
 
 			const salt = await GenerateSalt();
 			const userPassword = await GeneratePassword(password, salt);
-			const id = await GenerateUniqueString();
-
-			console.log(id);
+			const id = await GenerateUUID();
 
 			const new_user = await this.repository.AddUser({
 				id,
@@ -92,12 +90,10 @@ class UserService {
 	async Login(inputs) {
 		try {
 			const { email, password } = inputs;
-			const exis_user = await this.repository.FindUsers({ email });
-			if (exis_user.length < 1) throw new BadRequestError("Wrong email");
+			const exis_user = await this.repository.FindOneUser({ email });
+			if (!exis_user) throw new BadRequestError("Wrong email");
 
-			const user = exis_user[0];
-
-			const { password: user_password, salt: user_salt } = user;
+			const { password: user_password, salt: user_salt } = exis_user;
 
 			const validPassword = await ValidatePassword(
 				password,
@@ -111,16 +107,16 @@ class UserService {
 			// 	throw new BadRequestError("Account not Verified");
 
 			const token = await GenerateSignature({
-				email: user.email,
-				id: user.id,
+				email: exis_user.email,
+				id: exis_user.id,
 			});
 
 			return FormateData({
-				id: user.id,
-				email: user.email,
-				first_name: user.first_name,
-				last_name: user.last_name,
-				phone_number: user.phone_number,
+				id: exis_user.id,
+				email: exis_user.email,
+				first_name: exis_user.first_name,
+				last_name: exis_user.last_name,
+				phone_number: exis_user.phone_number,
 				token: token,
 			});
 		} catch (e) {
@@ -137,6 +133,7 @@ class UserService {
 				delete us["salt"];
 				return us;
 			});
+			// console.log(users);
 			return users;
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
@@ -195,6 +192,8 @@ class UserService {
 			}
 
 			const user = await this.repository.UpdateUser(id, filtered_updates);
+			delete user["salt"];
+			delete user["password"];
 			return user;
 		} catch (e) {
 			throw new APIError(e, e.statusCode);

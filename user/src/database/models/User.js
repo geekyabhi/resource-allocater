@@ -1,32 +1,79 @@
+const { DataTypes } = require("sequelize");
+const { DB } = require("../connect");
 class UserModel {
-	constructor(db, name) {
-		this.db = db;
-		this.tableName = name;
-	}
-
-	createUserTable = async () => {
-		return new Promise(async (resolve, reject) => {
-			try {
-				await this.db.schema.createTable(this.tableName, (table) => {
-					table.uuid("id").primary();
-					table.string("first_name");
-					table.string("last_name");
-					table.string("email").unique();
-					table.string("password", 355);
-					table.string("phone_number", 355);
-					table.string("gender", 255);
-					table.string("salt", 255);
-					table.boolean("verified").defaultTo(false);
-					table.boolean("email_notification").defaultTo(true);
-					table.boolean("sms_notification").defaultTo(true);
-					table.timestamp("created_at").defaultTo(this.db.fn.now());
-				});
-				resolve("User table created");
-			} catch (e) {
-				reject(`Error while creating user table :${e}`);
+	constructor() {
+		this.db = DB.connection;
+		this.schema = this.db.define(
+			"Users",
+			{
+				id: {
+					type: DataTypes.UUID,
+					defaultValue: DataTypes.UUIDV4,
+					primaryKey: true,
+				},
+				first_name: {
+					type: DataTypes.STRING,
+				},
+				last_name: {
+					type: DataTypes.STRING,
+				},
+				email: {
+					type: DataTypes.STRING,
+					unique: true,
+				},
+				password: {
+					type: DataTypes.STRING(355),
+				},
+				phone_number: {
+					type: DataTypes.STRING(355),
+				},
+				gender: {
+					type: DataTypes.STRING(255),
+				},
+				salt: {
+					type: DataTypes.STRING(255),
+				},
+				verified: {
+					type: DataTypes.BOOLEAN,
+					defaultValue: false,
+				},
+				email_notification: {
+					type: DataTypes.BOOLEAN,
+					defaultValue: true,
+				},
+				sms_notification: {
+					type: DataTypes.BOOLEAN,
+					defaultValue: true,
+				},
+				created_at: {
+					type: DataTypes.DATE,
+					defaultValue: this.db.literal("CURRENT_TIMESTAMP"),
+					allowNull: false,
+				},
+				updated_at: {
+					type: DataTypes.DATE,
+					defaultValue: this.db.literal("CURRENT_TIMESTAMP"),
+					allowNull: false,
+				},
+			},
+			{
+				timestamps: false, // Disable automatic timestamps (createdAt, updatedAt)
+				hooks: {
+					beforeUpdate(user) {
+						user.setDataValue("updated_at", new Date()); // Update the updated_at field before saving
+					},
+				},
+			},
+			{
+				indexes: [
+					{
+						unique: true, // Ensures that the values in this index are unique
+						fields: ["email"], // The field(s) you want to create an index on
+					},
+				],
 			}
-		});
-	};
+		);
+	}
 }
 
 module.exports = UserModel;

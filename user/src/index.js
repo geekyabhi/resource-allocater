@@ -6,8 +6,9 @@ const {
 	REDIS_URL,
 	MAIL_BINDING_KEY,
 } = require("./config");
+require("colors");
 
-const db = require("./database/connect");
+const { connectDB } = require("./database/connect");
 const expressApp = require("./express-engine");
 
 const { Models } = require("./database/models");
@@ -17,24 +18,23 @@ const { RedisUtil } = require("./utils/cache/");
 const StartServer = async () => {
 	try {
 		const app = express();
-
-		const models = new Models(db);
+		const dbConnection = await connectDB();
+		const models = new Models(dbConnection);
+		// const rds = new RedisUtil();
 		const rmq = new RabbitMQ(
 			MESSAGE_QUEUE_URL,
 			EXCHANGE_NAME,
 			MAIL_BINDING_KEY
 		);
-		const rds = new RedisUtil(REDIS_URL);
 
-		await models.createTables();
-		await rmq.CreateChannel();
-		await rds.ConnectRedis();
+		await models.migrate(true);
+		// await rmq.CreateChannel();
 
-		await expressApp(app, rds, rmq);
+		await expressApp(app, rmq);
 
 		app.listen(PORT, () => {
-			console.log(`Customer server running to port ${PORT}`);
-			console.log(`http://localhost:${PORT}`);
+			console.log(`Customer server running to port ${PORT}`.yellow);
+			console.log(`http://localhost:${PORT}`.yellow);
 		}).on("error", (err) => {
 			throw new Error(err);
 		});

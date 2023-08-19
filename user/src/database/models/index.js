@@ -3,29 +3,18 @@ const UserModel = require("./User");
 class Models {
 	constructor(db) {
 		this.db = db;
-		this.userModel = new UserModel(db, "users");
 	}
 
-	async ifTableExists(tableName) {
-		try {
-			const tableExists = await this.db.schema.hasTable(tableName);
-			return tableExists;
-		} catch (e) {
-			return false;
-		}
-	}
-
-	async createTables() {
+	async migrate(force) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				if (!(await this.ifTableExists(this.userModel.tableName)))
-					await this.userModel.createUserTable();
-				resolve("All tables created");
+				await this.db.sync({ force });
+				resolve("Migration done successfully");
 			} catch (e) {
-				reject(e);
+				reject(`Error while making migrations ${e}`);
 			}
 		});
 	}
 }
 
-module.exports = { Models };
+module.exports = { Models, UserModel };

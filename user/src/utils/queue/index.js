@@ -1,8 +1,13 @@
 const amqplib = require("amqplib");
+const {
+	MESSAGE_QUEUE_URL,
+	EXCHANGE_NAME,
+	MAIL_BINDING_KEY,
+} = require("../../config");
 const { AsyncAPIError } = require("../error/app-errors");
 
 class RabbitMQ {
-	constructor(MESSAGE_QUEUE_URL, EXCHANGE_NAME, MAIL_BINDING_KEY) {
+	constructor() {
 		this.MESSAGE_QUEUE_URL = MESSAGE_QUEUE_URL;
 		this.EXCHANGE_NAME = EXCHANGE_NAME;
 		this.MAIL_BINDING_KEY = MAIL_BINDING_KEY;
@@ -13,6 +18,7 @@ class RabbitMQ {
 			const connection = await amqplib.connect(this.MESSAGE_QUEUE_URL);
 			const channel = await connection.createChannel();
 			await channel.assertExchange(this.EXCHANGE_NAME, "direct", false);
+			console.log("Rabbit mq connected".green);
 			this.channel = channel;
 			return channel;
 		} catch (e) {

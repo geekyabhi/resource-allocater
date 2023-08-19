@@ -1,4 +1,5 @@
-const db = require("../database/connect/index");
+const connectDB = require("../database/connect");
+const { UserModel } = require("../database/models");
 
 const {
 	APIError,
@@ -7,6 +8,10 @@ const {
 } = require("../utils/error/app-errors");
 
 class UserRepository {
+	constructor() {
+		this.User = new UserModel().schema;
+	}
+
 	async AddUser({
 		id,
 		email,
@@ -31,8 +36,8 @@ class UserRepository {
 				salt,
 			};
 
-			await db("users").insert(user);
-			return user;
+			const created_user = await this.User.create(user);
+			return created_user;
 		} catch (e) {
 			throw new APIError(
 				"API Error",
@@ -44,37 +49,10 @@ class UserRepository {
 
 	async FindUsers(filters) {
 		try {
-			let query = db("users").select("*");
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.age) query = query.where("age", filters.age);
-			if (filters.verified)
-				query = query.where("verified", Number(filters.verified));
-
-			if (filters.id) query = query.where("id", filters.id);
-			if (filters.email) query = query.where("email", filters.email);
-			if (filters.password)
-				query = query.where("password", filters.password);
-			if (filters.phone_number)
-				query = query.where("phone_number", filters.phone_number);
-			if (filters.created_at)
-				query = query.where("created_at", filters.created_at);
-
-			const users = await query;
-			return users;
+			const users = await this.User.findAll({ where: filters });
+			return users.map((us) => {
+				return us.dataValues;
+			});
 		} catch (e) {
 			throw new APIError(
 				"API Error",
@@ -86,35 +64,8 @@ class UserRepository {
 
 	async FindUsersCount(filters) {
 		try {
-			let query = db("users").count("id as count");
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.age) query = query.where("age", filters.age);
-
-			if (filters.id) query = query.where("id", filters.id);
-			if (filters.email) query = query.where("email", filters.email);
-			if (filters.password)
-				query = query.where("password", filters.password);
-			if (filters.phone_number)
-				query = query.where("phone_number", filters.phone_number);
-			if (filters.created_at)
-				query = query.where("created_at", filters.created_at);
-
-			const users_count = await query;
-			return users_count[0].count;
+			const count = await this.User.count({ where: filters });
+			return count;
 		} catch (e) {
 			throw new APIError(
 				"API Error",
@@ -139,37 +90,8 @@ class UserRepository {
 
 	async FindOneUser(filters) {
 		try {
-			let query = db("users").select("*");
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.first_name)
-				query = query.where(
-					"first_name",
-					"like",
-					`%${filters.first_name}%`
-				);
-
-			if (filters.age) query = query.where("age", filters.age);
-			if (filters.verified)
-				query = query.where("verified", Number(filters.verified));
-
-			if (filters.id) query = query.where("id", filters.id);
-			if (filters.email) query = query.where("email", filters.email);
-			if (filters.password)
-				query = query.where("password", filters.password);
-			if (filters.phone_number)
-				query = query.where("phone_number", filters.phone_number);
-			if (filters.created_at)
-				query = query.where("created_at", filters.created_at);
-
-			const users = await query;
-			return users[0];
+			const user = await this.User.findOne({ where: filters });
+			return user.dataValues;
 		} catch (e) {
 			throw new APIError(
 				"API Error",
@@ -179,9 +101,16 @@ class UserRepository {
 		}
 	}
 
-	async UpdateUser(id, updated_user) {
+	async UpdateUser(id, updated_user, return_updated_data = true) {
 		try {
-			const user = await db("users").where("id", id).update(updated_user);
+			const [updatedCount, updatedUser] = await this.User.update(
+				updated_user,
+				{
+					where: { id },
+					returning: return_updated_data,
+				}
+			);
+			const user = updatedUser[0].dataValues;
 			return user;
 		} catch (e) {
 			throw new APIError(
