@@ -5,10 +5,18 @@ class MachineAllocation(models.Model):
     machine_id = models.CharField(max_length=100)
     container_id = models.CharField(max_length=100)
     starting_date = models.DateField()
-    end_date = models.DateField(default=None)
+    end_date = models.DateField(default=None ,null=True)
     is_active = models.BooleanField(default=True)
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('killed', 'Killed'),
+        ('stopped', 'Stopped'),
+    )
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None,null=True)
     machine_name = models.CharField(max_length=100)
     container_name = models.CharField(max_length=100)
+    port_used = models.IntegerField()
     instance_id = models.UUIDField(default=uuid.uuid4, editable=False)
     create_date = models.DateTimeField(auto_now_add=True)  # Automatically set on creation
     update_date = models.DateTimeField(auto_now=True) 

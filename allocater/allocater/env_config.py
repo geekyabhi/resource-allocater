@@ -12,7 +12,9 @@ class ConfigUtil:
             "DB_HOST",
             "DB_PORT",
             "MONGODB_URI",
-            "MONGODB_NAME"
+            "MONGODB_NAME",
+            "REDIS_URL",
+            "REDIS_PASSWORD"
         ]
         config._load(".env")
 
