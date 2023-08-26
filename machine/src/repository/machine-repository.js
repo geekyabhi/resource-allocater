@@ -66,12 +66,11 @@ class MachineRepository {
 	async UpdateMachine(machine_id, updated_values) {
 		try {
 			const machine = await Machine.findOne({ machine_id });
-			console.log(machine);
-			console.log(updated_values);
 			for (let key in machine) {
 				if (updated_values[key] != null)
 					machine[key] = updated_values[key];
 			}
+			console.log(machine);
 			const saved_machine = await machine.save();
 			return saved_machine;
 		} catch (e) {

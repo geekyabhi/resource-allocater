@@ -5,7 +5,7 @@ class MachineAllocation(models.Model):
     machine_id = models.CharField(max_length=100)
     container_id = models.CharField(max_length=100)
     starting_date = models.DateField()
-    end_date = models.DateField()
+    end_date = models.DateField(default=None)
     is_active = models.BooleanField(default=True)
     machine_name = models.CharField(max_length=100)
     container_name = models.CharField(max_length=100)

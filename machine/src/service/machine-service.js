@@ -17,7 +17,14 @@ class MachineService {
 		this.repository = new MachineRepository();
 	}
 
-	async CreateMachine(name, image, backGroundImage, props) {
+	async CreateMachine(
+		name,
+		image,
+		backGroundImage,
+		props,
+		image_name,
+		default_port
+	) {
 		try {
 			const machine_id = GenerateUUID();
 
@@ -27,7 +34,9 @@ class MachineService {
 				backGroundImage,
 				true,
 				machine_id,
-				props
+				props,
+				image_name,
+				default_port
 			);
 			return FormateData({
 				id: machine._id,
@@ -35,6 +44,8 @@ class MachineService {
 				isactive: machine.isactive,
 				props: machine.props,
 				machine_id: machine.machine_id,
+				image_name: machine.image_name,
+				default_port: machine.default_port,
 				createdAt: machine.createdAt,
 				updatedAt: machine.updatedAt,
 			});
@@ -70,6 +81,8 @@ class MachineService {
 					isactive: machine.isactive,
 					props: machine.props,
 					machine_id: machine.machine_id,
+					image_name: machine.image_name,
+					default_port: machine.default_port,
 					createdAt: machine.createdAt,
 					updatedAt: machine.updatedAt,
 				})
@@ -93,6 +106,8 @@ class MachineService {
 				isactive: updated_machine.isactive,
 				props: updated_machine.props,
 				machine_id: updated_machine.machine_id,
+				image_name: updated_machine.image_name,
+				default_port: updated_machine.default_port,
 				createdAt: updated_machine.createdAt,
 				updatedAt: updated_machine.updatedAt,
 			});

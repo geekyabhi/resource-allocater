@@ -7,12 +7,21 @@ class MachineController {
 
 	createMachine = async (req, res, next) => {
 		try {
-			const { name, image, backGroundImage, props } = req.body;
+			const {
+				name,
+				image,
+				backGroundImage,
+				props,
+				image_name,
+				default_port,
+			} = req.body;
 			const machine = await this.service.CreateMachine(
 				name,
 				image,
 				backGroundImage,
-				props
+				props,
+				image_name,
+				default_port
 			);
 			return res.json({ success: true, data: machine });
 		} catch (e) {

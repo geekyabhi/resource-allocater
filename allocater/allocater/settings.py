@@ -1,18 +1,17 @@
 from pathlib import Path
 
-from decouple import config
+from allocater.env_config import ConfigUtil
 
-# Load .env file
-config._load('.env')
+configuration = ConfigUtil().get_config_data()
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT', default='5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": configuration.get("DB_NAME"),
+        "USER": configuration.get("DB_USER"),
+        "PASSWORD": configuration.get("DB_PASSWORD"),
+        "HOST": configuration.get("DB_HOST"),
+        "PORT": configuration.get("DB_PORT", "5432"),
     }
 }
 
@@ -31,7 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'allocate_machine.apps.AllocateMachineConfig'
+    "allocate_machine.apps.AllocateMachineConfig",
 ]
 
 MIDDLEWARE = [
