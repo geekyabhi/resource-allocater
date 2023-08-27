@@ -5,7 +5,7 @@ import json
 from .serializers import MachineAllocationSerializer
 from .models import MachineAllocation
 from .service import MachineAllocationService
-from middlewere.auth_layer import jwt_auth_required
+from middlewere.auth_layer import auth_layer
 from django.utils.decorators import method_decorator
 
 
@@ -13,7 +13,7 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
     serializer_class = MachineAllocationSerializer
     service = MachineAllocationService()
 
-    @method_decorator(jwt_auth_required)
+    @method_decorator(auth_layer)
     def create_allocation(self, request):
         raw_data = request.body
         data = raw_data.decode("utf-8")
@@ -33,7 +33,7 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(jwt_auth_required)
+    @method_decorator(auth_layer)
     def remove_allocation(self, request):
         query_data = request.query_params
 
@@ -53,7 +53,7 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(jwt_auth_required)
+    @method_decorator(auth_layer)
     def get_allocation(self, request):
         query_data = request.query_params.dict()
         uid = request.user.get("id")
@@ -63,7 +63,7 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(machine_allocation, many=True)
         return Response(serializer.data)
 
-    @method_decorator(jwt_auth_required)
+    @method_decorator(auth_layer)
     def stop_allocation(self, request):
         query_data = request.query_params.dict()
         container_id = query_data.get("container_id")
@@ -82,7 +82,7 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(jwt_auth_required)
+    @method_decorator(auth_layer)
     def restart_allocation(self, request):
         query_data = request.query_params.dict()
         container_id = query_data.get("container_id")

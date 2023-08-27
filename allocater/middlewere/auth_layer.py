@@ -7,7 +7,7 @@ from allocater.env_config import ConfigUtil
 configuration = ConfigUtil().get_config_data()
 APP_SECRET = configuration.get('APP_SECRET')
 
-def jwt_auth_required(view_func):
+def auth_layer(view_func):
     def _wrapped_view(request, *args, **kwargs):
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if auth_header and auth_header.startswith('Bearer '):
