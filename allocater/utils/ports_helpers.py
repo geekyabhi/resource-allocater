@@ -10,8 +10,8 @@ class PortUtil:
 
         unused_ports = self.redis.smembers("unused_port")
         for port in unused_ports:
-            if port > base_port and port < base_port + 1000:
-                new_port = port
+            if int(port) > base_port and int(port) < base_port + 1000:
+                new_port = int(port)
                 break
 
         if new_port is not None:

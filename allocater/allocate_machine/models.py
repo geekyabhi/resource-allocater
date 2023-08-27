@@ -18,8 +18,9 @@ class MachineAllocation(models.Model):
     container_name = models.CharField(max_length=100)
     port_used = models.IntegerField()
     instance_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    uid = models.UUIDField(null=False)
     create_date = models.DateTimeField(auto_now_add=True)  # Automatically set on creation
-    update_date = models.DateTimeField(auto_now=True) 
+    update_date = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'machine-allocation'

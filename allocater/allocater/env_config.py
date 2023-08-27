@@ -14,7 +14,8 @@ class ConfigUtil:
             "MONGODB_URI",
             "MONGODB_NAME",
             "REDIS_URL",
-            "REDIS_PASSWORD"
+            "REDIS_PASSWORD",
+            "APP_SECRET"
         ]
         config._load(".env")
 

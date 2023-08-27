@@ -1,5 +1,6 @@
 import docker
 
+
 class DockerManager:
     def __init__(self) -> None:
         self.client = docker.from_env()
@@ -23,9 +24,9 @@ class DockerManager:
             "container_name": container.name,
             "image": container.image.tags[0],
             "ports": container.ports,
-            "status": container.status
+            "status": container.status,
         }
-        
+
         return container_details
 
     def stop_container(self, container):
@@ -56,10 +57,28 @@ class DockerManager:
         except docker.errors.NotFound:
             return None
 
-    def stop_container_by_id(self, container_id):
+    def start_stopped_container(self, container_id):
         container = self.get_container_by_id(container_id)
         if container:
+            if container.status == "exited":
+                container.start()
+                print(
+                    f"Container started - ID: {container.short_id}, Name: {container.name}"
+                )
+            else:
+                print("Container is not in a stopped state")
+        else:
+            print("Container not found")
+
+    def stop_container_by_id(self, container_id):
+        print("Hello")
+        container = self.get_container_by_id(container_id)
+        print(container)
+        if container:
             container.stop()
+            print(
+                f"Container stopped - ID: {container.short_id}, Name: {container.name}"
+            )
         else:
             print("Container not found")
 

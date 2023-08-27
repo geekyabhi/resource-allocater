@@ -41,6 +41,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # 'middlewere.auth_layer.jwt_auth_required',  # Add the function path to your middleware
 ]
 
 ROOT_URLCONF = "allocater.urls"
