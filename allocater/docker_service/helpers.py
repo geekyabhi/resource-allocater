@@ -8,26 +8,30 @@ class DockerManager:
     def start_container(
         self, image, container_name, ports=None, command=None, detach=True
     ):
-        if ports is None:
-            ports = {}
+        try:
+            if ports is None:
+                ports = {}
 
-        container = self.client.containers.run(
-            image=image,
-            name=container_name,
-            ports=ports,
-            command=command,
-            detach=detach,
-        )
+            container = self.client.containers.run(
+                image=image,
+                name=container_name,
+                ports=ports,
+                command=command,
+                detach=detach,
+            )
 
-        container_details = {
-            "container_id": container.short_id,
-            "container_name": container.name,
-            "image": container.image.tags[0],
-            "ports": container.ports,
-            "status": container.status,
-        }
+            container_details = {
+                "container_id": container.short_id,
+                "container_name": container.name,
+                "image": container.image.tags[0],
+                "ports": container.ports,
+                "status": container.status,
+            }
 
-        return container_details
+            return container_details
+
+        except Exception as e:
+            raise Exception(f"Container cannot be started {str(e)}")
 
     def stop_container(self, container):
         container.stop()
@@ -42,7 +46,8 @@ class DockerManager:
         containers = self.client.containers.list(filters={"name": container_name})
         if containers:
             return containers[0]
-        return None
+        else:
+            raise Exception(f"Container {container_name} not found")
 
     def stream_container_logs(self, container_id):
         container = self.client.containers.get(container_id)
@@ -55,32 +60,21 @@ class DockerManager:
             container = self.client.containers.get(container_id)
             return container
         except docker.errors.NotFound:
-            return None
+            raise Exception(f"Conatiner {container_id} not found")
 
     def start_stopped_container(self, container_id):
         container = self.get_container_by_id(container_id)
-        if container:
-            if container.status == "exited":
-                container.start()
-                print(
-                    f"Container started - ID: {container.short_id}, Name: {container.name}"
-                )
-            else:
-                print("Container is not in a stopped state")
+        if container and container.status == "exited":
+            container.start()
         else:
-            print("Container not found")
+            raise Exception(f"Conatiner {container_id} not found")
 
     def stop_container_by_id(self, container_id):
-        print("Hello")
         container = self.get_container_by_id(container_id)
-        print(container)
         if container:
             container.stop()
-            print(
-                f"Container stopped - ID: {container.short_id}, Name: {container.name}"
-            )
         else:
-            print("Container not found")
+            raise Exception(f"Conatiner {container_id} not found")
 
     def remove_container_by_id(self, container_id):
         container = self.get_container_by_id(container_id)
@@ -88,4 +82,4 @@ class DockerManager:
             container.stop()
             container.remove()
         else:
-            print("Container not found")
+            raise Exception(f"Conatiner {container_id} not found")
