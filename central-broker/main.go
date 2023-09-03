@@ -10,7 +10,7 @@ import (
 	"github.com/geekyabhi/resource-allocater/utils"
 )
 
-func runConsumer(consumer *utils.KafkaConsumer , wg *sync.WaitGroup , consumerFunc func(consumer *utils.KafkaConsumer)){
+func runConsumer(consumer *utils.KafkaConsumer, wg *sync.WaitGroup, consumerFunc func(consumer *utils.KafkaConsumer)) {
 	wg.Add(1)
 	defer wg.Done()
 	consumerFunc(consumer)
@@ -21,8 +21,7 @@ func main() {
 
 	topic1Consumer := consumers.NewTopic1Consumer()
 
-
-	go runConsumer(topic1Consumer , &wg , consumers.RunTopic1Consumer)
+	go runConsumer(topic1Consumer, &wg, consumers.RunTopic1Consumer)
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
