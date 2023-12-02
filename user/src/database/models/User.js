@@ -3,6 +3,7 @@ const { DB } = require("../connect");
 class UserModel {
 	constructor() {
 		this.db = DB.connection;
+
 		this.schema = DB.connection.define(
 			"users",
 			{
