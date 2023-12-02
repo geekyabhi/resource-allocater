@@ -9,14 +9,24 @@ const {
 class MachineRepository {
 	constructor() {}
 
-	async AddMachine(
+	async AddMachine({
 		name,
 		image,
+		image_name,
 		backGroundImage,
 		isactive,
 		machine_id,
-		props
-	) {
+		props,
+	}) {
+		console.log(
+			name,
+			image,
+			image_name,
+			backGroundImage,
+			isactive,
+			machine_id,
+			props
+		);
 		try {
 			const machine = new Machine({
 				name,
@@ -24,6 +34,7 @@ class MachineRepository {
 				backGroundImage,
 				isactive,
 				machine_id,
+				image_name,
 				props,
 			});
 			const saved_machine = await machine.save();
@@ -52,6 +63,10 @@ class MachineRepository {
 
 	async FindOneMachine(filters) {
 		try {
+			if (filters["id"] != null) {
+				filters["_id"] = filters["id"];
+				delete filters.id;
+			}
 			const machine = await Machine.findOne(filters);
 			return machine;
 		} catch (e) {

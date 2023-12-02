@@ -82,7 +82,7 @@ const CreateUniqueName = (length = 6) => {
 };
 
 const GenerateUUID = () => {
-	let id = uuid();
+	let id = uuid().replace(/-/g, "");
 	return id;
 };
 

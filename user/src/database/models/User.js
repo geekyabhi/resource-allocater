@@ -3,12 +3,12 @@ const { DB } = require("../connect");
 class UserModel {
 	constructor() {
 		this.db = DB.connection;
-		this.schema = this.db.define(
-			"Users",
+		this.schema = DB.connection.define(
+			"users",
 			{
 				id: {
-					type: DataTypes.UUID,
-					defaultValue: DataTypes.UUIDV4,
+					type: DataTypes.STRING,
+					allowNull: false,
 					primaryKey: true,
 				},
 				first_name: {
@@ -71,6 +71,12 @@ class UserModel {
 						fields: ["email"], // The field(s) you want to create an index on
 					},
 				],
+			},
+			{
+				schema: "public",
+			},
+			{
+				underscored: true,
 			}
 		);
 	}

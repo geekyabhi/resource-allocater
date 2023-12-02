@@ -39,7 +39,6 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             KafkaProducerHandler().produce_message("ywbuiicx-email",json.dumps(message))
             return Response({'data':serializer.data,'success':True}, status=status.HTTP_201_CREATED)
         except Exception as e:
-            print(e) 
             error=ErrorHandler().PickError(e)
             return Response(error,status=status.HTTP_400_BAD_REQUEST)
 
@@ -79,7 +78,6 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             message={
                 'key':'value2'
             }
-            print("Going to produce message")
             self.kakfa.produce_message("ywbuiicx-email",json.dumps(message))
             return Response(serializer.data)
         except Exception as e:

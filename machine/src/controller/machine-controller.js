@@ -15,14 +15,14 @@ class MachineController {
 				image_name,
 				default_port,
 			} = req.body;
-			const machine = await this.service.CreateMachine(
+			const machine = await this.service.CreateMachine({
 				name,
 				image,
 				backGroundImage,
 				props,
 				image_name,
-				default_port
-			);
+				default_port,
+			});
 			return res.json({ success: true, data: machine });
 		} catch (e) {
 			next(e);

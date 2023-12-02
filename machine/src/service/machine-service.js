@@ -17,27 +17,26 @@ class MachineService {
 		this.repository = new MachineRepository();
 	}
 
-	async CreateMachine(
+	async CreateMachine({
 		name,
 		image,
 		backGroundImage,
 		props,
 		image_name,
-		default_port
-	) {
+		default_port,
+	}) {
 		try {
 			const machine_id = GenerateUUID();
 
-			const machine = await this.repository.AddMachine(
+			const machine = await this.repository.AddMachine({
 				name,
 				image,
 				backGroundImage,
-				true,
 				machine_id,
 				props,
 				image_name,
-				default_port
-			);
+				default_port,
+			});
 			return FormateData({
 				id: machine._id,
 				name: machine.name,

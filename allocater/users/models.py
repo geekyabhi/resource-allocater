@@ -21,11 +21,13 @@ class UserModel(models.Model):
             models.Index(fields=["email"]),
         ]
         app_label = 'users'
+        db_table = 'user'
 
     @staticmethod
-    def find_all_users(**filter):
-        return UserModel.objects.filter(filter)
+    def find_all_users(**filters):
+        return UserModel.objects.filter(**filters)
 
     @staticmethod
-    def find_one_user(**filter):
-        return UserModel.objects.filter(filter).first()
+    def find_one_user(**filters):
+        filters = filters.get('filter',{})
+        return UserModel.objects.filter(**filters).first()

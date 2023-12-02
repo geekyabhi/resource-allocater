@@ -17,10 +17,9 @@ def auth_layer(view_func):
 
             try:
                 decoded_payload = jwt.decode(token, APP_SECRET, algorithms=["HS256"])
-                email = decoded_payload.email
+                email = decoded_payload.get('email')
                 if not email:
                     return JsonResponse({"error": "Email not present."}, status=401)
-
                 user_detail = UserService().find_one_user(email=email)
                 if not user_detail:
                     return JsonResponse(

@@ -12,7 +12,6 @@ const {
 } = require("../utils/functions");
 
 const { APIError, BadRequestError } = require("../utils/error/app-errors");
-
 class UserService {
 	constructor() {
 		this.repository = new UserRepository();

@@ -7,6 +7,7 @@ const {
 	VerifyOTP,
 	SendOTP,
 } = require("../utils/functions");
+const KafkaProducerHandler = require("../utils/message-broker/kafka-message-broker");
 
 class UserController {
 	constructor() {
@@ -43,6 +44,10 @@ class UserController {
 				id: data.id,
 			};
 
+			const kafkaProducer = new KafkaProducerHandler();
+			console.log(data);
+			await kafkaProducer.Produce("user-data", JSON.stringify(data));
+
 			// rabbitMq.PublishMessage(
 			// 	rabbitMq.MAIL_BINDING_KEY,
 			// 	JSON.stringify({ ...publishData, event: "profile_registered" })
@@ -74,9 +79,7 @@ class UserController {
 	sendOTP = async (req, res, next) => {
 		try {
 			const { email } = req.body;
-
 			const user_data = await this.service.FindOneUser({ email });
-
 			const data = await CanSendOTP(this.redis, email);
 			if (!data.can_send)
 				return res.json({
