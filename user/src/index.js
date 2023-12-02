@@ -21,16 +21,16 @@ const StartServer = async () => {
 		const dbConnection = await connectDB();
 		const models = new Models(dbConnection);
 		// const rds = new RedisUtil();
-		const rmq = new RabbitMQ(
-			MESSAGE_QUEUE_URL,
-			EXCHANGE_NAME,
-			MAIL_BINDING_KEY
-		);
+		// const rmq = new RabbitMQ(
+		// 	MESSAGE_QUEUE_URL,
+		// 	EXCHANGE_NAME,
+		// 	MAIL_BINDING_KEY
+		// );
 
-		await models.migrate(true);
+		await models.migrate(false);
 		// await rmq.CreateChannel();
 
-		await expressApp(app, rmq);
+		await expressApp(app);
 
 		app.listen(PORT, () => {
 			console.log(`Customer server running to port ${PORT}`.yellow);

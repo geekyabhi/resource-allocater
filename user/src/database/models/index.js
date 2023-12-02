@@ -9,8 +9,7 @@ class Models {
 	async migrate(force) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				// console.log(this.db);
-				await this.db.sync({ force: true, logging: console.log });
+				await this.db.sync({ force });
 				resolve("Migration done successfully");
 			} catch (e) {
 				reject(`Error while making migrations ${e}`);

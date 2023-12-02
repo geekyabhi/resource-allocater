@@ -5,6 +5,7 @@ const {
 	DB_PASSWORD,
 	DB_HOST,
 	DB_USERNAME,
+	DB_PORT,
 } = require("../../config/index");
 
 let DB = {};
@@ -12,21 +13,11 @@ let DB = {};
 const connectDB = () => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			console.log({
-				dialect: "mysql", // Change the dialect to MySQL
-				logging: true,
-				host: DB_HOST,
-				port: 3306, // Default MySQL port
-				username: DB_USERNAME,
-				password: DB_PASSWORD,
-				database: DB_NAME,
-			});
-
 			const sequelize = new Sequelize({
 				dialect: "mysql", // Change the dialect to MySQL
 				logging: true,
 				host: DB_HOST,
-				port: 3306, // Default MySQL port
+				port: DB_PORT, // Default MySQL port
 				username: DB_USERNAME,
 				password: DB_PASSWORD,
 				database: DB_NAME,

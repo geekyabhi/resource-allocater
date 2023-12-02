@@ -33,13 +33,14 @@ func Load() (*AppConfig, error) {
 		ResourceAllocatorUserDbName: os.Getenv("RESOURCE_ALLOCATOR_USER_DB_NAME"),
 		ResourceAllocatorUserUserName: os.Getenv("RESOURCE_ALLOCATOR_USER_USER_NAME"),
 		ResourceAllocatorUserHost: os.Getenv("RESOURCE_ALLOCATOR_USER_HOST"), 
-		ResourceAllocatorUserPort: 5432, 
 		ResourceAllocatorUserPassword: os.Getenv("RESOURCE_ALLOCATOR_USER_PASSWORD"),
+		ResourceAllocatorUserPort: 3306, 
+
 		ResourceAllocatorAllocatorDbName: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_DB_NAME"),
 		ResourceAllocatorAllocatorUserName: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_USER_NAME"),
 		ResourceAllocatorAllocatorHost: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_HOST"),
 		ResourceAllocatorAllocatorPassword: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PASSWORD"),
-		ResourceAllocatorAllocatorPort:5432,
+		ResourceAllocatorAllocatorPort:3307,
 		// KafkaUsername: os.Getenv("KAFKA_USERNAME"),
 		// KafkaPassword: os.Getenv("KAFKA_PASSWORD"),
 	}

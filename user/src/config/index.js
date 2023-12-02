@@ -6,6 +6,7 @@ const config = {
 	DB_USERNAME: process.env.DBUSERNAME,
 	DB_PASSWORD: process.env.DBPASSWORD,
 	DB_NAME: process.env.DBNAME,
+	DB_PORT: process.env.DBPORT,
 	APP_SECRET: process.env.APP_SECRET,
 	REDIS_HOST: process.env.REDIS_HOST,
 	REDIS_PORT: process.env.REDIS_PORT,

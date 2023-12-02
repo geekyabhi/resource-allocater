@@ -38,12 +38,6 @@ func initiateAllDB(){
 	utils.InitDB(user_host,user_port,user_user_name,user_password,user_db_name)
 	utils.Db_name_mapping["resource-user"] = user_db_name
 
-	db_pool := utils.GetDB(utils.Db_name_mapping["resource-allocator"])
-	result,err := utils.QueryDatabase(db_pool,`SELECT * FROM "machine-allocation"`)
-	if err!=nil{
-		fmt.Printf("error %s",err)
-	}
-	utils.PrintResult(result)
 }
 
 func main() {

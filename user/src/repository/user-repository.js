@@ -91,6 +91,9 @@ class UserRepository {
 	async FindOneUser(filters) {
 		try {
 			const user = await this.User.findOne({ where: filters });
+			if (!user) {
+				return null;
+			}
 			return user.dataValues;
 		} catch (e) {
 			throw new APIError(

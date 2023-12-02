@@ -31,7 +31,7 @@ services:
         ports:
             - "6379:6379"
         environment:
-            REDIS_PASSWORD: "Abhinav@1712"
+            REDIS_PASSWORD: "Abhinav1712"
 
     postgres:
         image: postgres:latest
@@ -43,14 +43,24 @@ services:
             POSTGRES_PASSWORD: "Abhinav@1712"
             POSTGRES_DB: "resource-user"
 
-    mysql:
+    mysql-user:
         image: mysql:latest
-        container_name: mysql
+        container_name: mysql-user
         ports:
             - "3306:3306"
         environment:
             MYSQL_ROOT_PASSWORD: "Abhinav@1712"
             MYSQL_DATABASE: "resource-user"
             MYSQL_USER: "resource-user"
+            MYSQL_PASSWORD: "Abhinav@1712"
+    mysql-allocator: # Add a new MySQL instance
+        image: mysql:latest
+        container_name: mysql-allocator
+        ports:
+            - "3307:3306" # Use a different host port to avoid conflicts
+        environment:
+            MYSQL_ROOT_PASSWORD: "Abhinav@1712" # Change the password if needed
+            MYSQL_DATABASE: "resource-allocator" # Change the database name if needed
+            MYSQL_USER: "resource-allocator" # Change the username if needed
             MYSQL_PASSWORD: "Abhinav@1712"
 # Add any additional services or configurations as needed

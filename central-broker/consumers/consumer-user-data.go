@@ -1,6 +1,7 @@
 package consumers
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,6 +15,19 @@ import (
 var topic = "user-data"
 var temp_signal = make(chan bool)
 
+type User struct {
+		ID                string `json:"id"`
+		Email             string `json:"email"`
+		FirstName         string `json:"first_name"`
+		LastName          string `json:"last_name"`
+		PhoneNumber       string `json:"phone_number"`
+		Gender            string `json:"gender"`
+		Password          string `json:"password"`
+		Verified          bool   `json:"verified"`
+		EmailNotification bool   `json:"email_notification"`
+		SMSNotification   bool   `json:"sms_notification"`
+		Salt              string `json:"salt"`
+	}
 
 
 func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
@@ -29,12 +43,31 @@ func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 		default:
 			msg, _ := kafkaConsumer.ReadMessage(time.Millisecond)
 			if msg != nil {
-				fmt.Printf("Topic User Data - Received message: Key: %s, Value: %s\n", string(msg.Key), string(msg.Value))
-				db_pool := utils.GetDB(utils.Db_name_mapping["resource-user"])
-				utils.QueryDatabase(db_pool,"SELECT * FROM 'public'.'user'")
+				// fmt.Printf("Topic User Data - Received message: Key: %s, Value: %s\n", string(msg.Key), string(msg.Value))
+				ProcessData(msg)
 			}
 		}
 	}
+}
+
+func ProcessData(msg *kafka.Message){
+	var user User
+	err := json.Unmarshal(msg.Value,&user)
+	if err!=nil{
+		fmt.Println("Error while parsing user")
+		return
+	}
+	query := fmt.Sprintf(`
+		INSERT INTO user (
+			id, first_name, last_name, email, password, phone_number, gender, salt, verified, email_notification, sms_notification
+		) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %t, %t, %t)`,user.ID,user.FirstName,user.LastName,user.Email,user.Password,user.PhoneNumber,user.Gender,user.Salt,user.Verified,user.EmailNotification,user.SMSNotification)
+	// fmt.Println(query)
+	db_pool := utils.GetDB(utils.Db_name_mapping["resource-allocator"])
+	result,err := utils.QueryDatabase(db_pool,query)
+	if err!=nil{
+		fmt.Printf("error %s",err)
+	}
+	utils.PrintResult(result)
 }
 
 func UserDataConsumer() *utils.KafkaConsumer {

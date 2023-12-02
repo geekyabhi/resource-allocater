@@ -44,7 +44,6 @@ const ValidateSignature = async (req) => {
 	try {
 		const signature = req.get("Authorization");
 		const APP_SECRET = process.env.APP_SECRET;
-
 		if (signature) {
 			const payload = await jwt.verify(
 				signature.split(" ")[1],

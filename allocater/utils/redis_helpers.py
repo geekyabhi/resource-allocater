@@ -4,14 +4,15 @@ from allocater.env_config import ConfigUtil
 
 configuration = ConfigUtil().get_config_data()
 
+REDIS_URL = configuration.get("REDIS_URL")
+REDIS_PASSWORD = configuration.get("REDIS_PASSWORD")
+redis_client = redis.from_url(
+            REDIS_URL, password=REDIS_PASSWORD, decode_responses=True, db=0
+        )
 
 class RedisUtils:
-    def __init__(self, db=0):
-        self.REDIS_URL = configuration.get("REDIS_URL")
-        self.REDIS_PASSWORD = configuration.get("REDIS_PASSWORD")
-        self.redis_client = redis.from_url(
-            self.REDIS_URL, password=self.REDIS_PASSWORD, decode_responses=True, db=db
-        )
+    def __init__(self):
+        self.redis_client = redis_client
 
     def set(self, key, value):
         self.redis_client.set(key, value)

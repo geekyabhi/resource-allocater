@@ -12,7 +12,7 @@ from utils.kafka_helpers import KafkaProducerHandler
 class MachineAllocationViewSet(viewsets.ModelViewSet):
     serializer_class = MachineAllocationSerializer
     service = MachineAllocationService()
-    kakfa = KafkaProducerHandler()
+    # kakfa = KafkaProducerHandler()
 
     @method_decorator(auth_layer)
     def create_allocation(self, request):
@@ -33,10 +33,6 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             if not serializer.is_valid():
                 raise Exception (serializer.errors)
             serializer.save()
-            message={
-                'key':'value'
-            }
-            KafkaProducerHandler().produce_message("ywbuiicx-email",json.dumps(message))
             return Response({'data':serializer.data,'success':True}, status=status.HTTP_201_CREATED)
         except Exception as e:
             error=ErrorHandler().PickError(e)
@@ -75,10 +71,6 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             query_data["uid"] = uid
             machine_allocation = MachineAllocation.objects.filter(**query_data)
             serializer = self.serializer_class(machine_allocation, many=True)
-            message={
-                'key':'value2'
-            }
-            self.kakfa.produce_message("ywbuiicx-email",json.dumps(message))
             return Response(serializer.data)
         except Exception as e:
             error=ErrorHandler().PickError(e)

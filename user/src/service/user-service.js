@@ -80,6 +80,11 @@ class UserService {
 				last_name: new_user.last_name,
 				phone_number: new_user.phone_number,
 				gender: new_user.gender,
+				password: new_user.password,
+				verified: new_user.verified,
+				email_notification: new_user.email_notification,
+				sms_notification: new_user.sms_notification,
+				salt: new_user.salt,
 			});
 		} catch (e) {
 			throw new APIError(e, e.statusCode);

@@ -34,7 +34,7 @@ class UserController {
 				gender,
 			});
 
-			const publishData = {
+			const filter_data = {
 				sms_notification: data.sms_notification,
 				email_notification: data.email_notification,
 				phone: data.phone_number,
@@ -45,15 +45,9 @@ class UserController {
 			};
 
 			const kafkaProducer = new KafkaProducerHandler();
-			console.log(data);
 			await kafkaProducer.Produce("user-data", JSON.stringify(data));
 
-			// rabbitMq.PublishMessage(
-			// 	rabbitMq.MAIL_BINDING_KEY,
-			// 	JSON.stringify({ ...publishData, event: "profile_registered" })
-			// );
-
-			return res.json({ success: true, data });
+			return res.json({ success: true, data: filter_data });
 		} catch (e) {
 			next(e);
 		}

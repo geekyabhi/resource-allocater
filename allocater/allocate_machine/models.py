@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-
+import datetime
 class MachineAllocation(models.Model):
     machine_id = models.CharField(max_length=100)
     container_id = models.CharField(max_length=100)
@@ -14,16 +14,15 @@ class MachineAllocation(models.Model):
     )
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None,null=True)
-    machine_name = models.CharField(max_length=100)
+    machine_name = models.CharField(max_length=100, null=False)
     container_name = models.CharField(max_length=100)
-    port_used = models.IntegerField()
-    instance_id = models.UUIDField(default=uuid.uuid4, editable=False)
-    uid = models.UUIDField(null=False)
-    create_date = models.DateTimeField(auto_now_add=True)  # Automatically set on creation
+    port_used = models.IntegerField(null=False,default=None)
+    uid = models.CharField(max_length=255,null=False)
+    create_date = models.DateTimeField(auto_now_add=True )  # Automatically set on creation
     update_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'machine-allocation'
+        db_table = 'machineallocation'
 
     def __str__(self):
         return f"Machine: {self.machine_name}, Container: {self.container_name}"
