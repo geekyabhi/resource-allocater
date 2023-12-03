@@ -1,5 +1,7 @@
 const { MachineService } = require("../service");
-
+const KafkaProducerHandler = require("../utils/message-broker/kafka-message-broker");
+const kafkaProducer = new KafkaProducerHandler();
+const MACHINE_DATA_TOPIC = "machine-data";
 class MachineController {
 	constructor() {
 		this.service = new MachineService();
@@ -23,6 +25,14 @@ class MachineController {
 				image_name,
 				default_port,
 			});
+			const publishData = {
+				event: "ADD_MACHINE",
+				data: machine,
+			};
+			await kafkaProducer.Produce(
+				MACHINE_DATA_TOPIC,
+				JSON.stringify(publishData)
+			);
 			return res.json({ success: true, data: machine });
 		} catch (e) {
 			next(e);
@@ -57,6 +67,14 @@ class MachineController {
 				machine_id,
 				updated_values
 			);
+			const publishData = {
+				event: "UPDATE_MACHINE",
+				data: machine,
+			};
+			await kafkaProducer.Produce(
+				MACHINE_DATA_TOPIC,
+				JSON.stringify(publishData)
+			);
 			return res.json({ success: true, data: machine });
 		} catch (e) {
 			next(e);
@@ -67,6 +85,17 @@ class MachineController {
 		try {
 			const { machine_id } = req.params;
 			await this.service.DeleteMachine(machine_id);
+			const publishData = {
+				event: "DELETE_MACHINE",
+				data: {
+					machine_id,
+				},
+			};
+
+			await kafkaProducer.Produce(
+				MACHINE_DATA_TOPIC,
+				JSON.stringify(publishData)
+			);
 			return res.json({ success: true });
 		} catch (e) {
 			next(e);

@@ -6,7 +6,8 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/geekyabhi/resource-allocater/consumers"
+	machine_consumers "github.com/geekyabhi/resource-allocater/consumers/machine-data-consumer"
+	user_consumers "github.com/geekyabhi/resource-allocater/consumers/user-data-consumer"
 	"github.com/geekyabhi/resource-allocater/utils"
 )
 
@@ -29,21 +30,27 @@ var allocator_password = cfg.ResourceAllocatorAllocatorPassword
 var allocator_user_name = cfg.ResourceAllocatorAllocatorUserName
 var allocator_port = cfg.ResourceAllocatorAllocatorPort
 
+var machine_db_name = cfg.ResourceAllocatorMachineDbName
+var machine_db_uri = cfg.ResourceAllocatorMachineURI
 
 func initiateAllDB(){
 
-	utils.InitDB(allocator_host,allocator_port,allocator_user_name,allocator_password,allocator_db_name)
-	utils.Db_name_mapping["resource-allocator"] = allocator_db_name
+	utils.InitSQLDB(allocator_host,allocator_port,allocator_user_name,allocator_password,allocator_db_name)
+	utils.SQL_db_name_mapping["resource-allocator"] = allocator_db_name
 
-	utils.InitDB(user_host,user_port,user_user_name,user_password,user_db_name)
-	utils.Db_name_mapping["resource-user"] = user_db_name
+	utils.InitSQLDB(user_host,user_port,user_user_name,user_password,user_db_name)
+	utils.SQL_db_name_mapping["resource-user"] = user_db_name
+
+	utils.InitMongoDB(machine_db_uri,machine_db_name)
+	utils.Mongo_db_name_mapping["resource-machine"] = machine_db_name
 
 }
 
 func main() {
 	var wg sync.WaitGroup
 	initiateAllDB()
-	go runConsumer(consumers.UserDataConsumer(), &wg, consumers.RunUserDataConsumer)
+	go runConsumer(user_consumers.UserDataConsumer(), &wg, user_consumers.RunUserDataConsumer)
+	go runConsumer(machine_consumers.MachineDataConsumer(),&wg,machine_consumers.RunMachineDataConsumer)
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)

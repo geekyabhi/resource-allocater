@@ -63,4 +63,13 @@ services:
             MYSQL_DATABASE: "resource-allocator" # Change the database name if needed
             MYSQL_USER: "resource-allocator" # Change the username if needed
             MYSQL_PASSWORD: "Abhinav@1712"
-# Add any additional services or configurations as needed
+
+    # mongodb:
+    #     image: mongo:latest
+    #     container_name: mongodb
+    #     ports:
+    #         - "27017:27017"
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: "resource-machine" # Change the MongoDB root username
+    #         MONGO_INITDB_ROOT_PASSWORD: "Abhinav1712" # Change the MongoDB root password
+    #         MONGO_INITDB_DATABASE: "resource-machine"

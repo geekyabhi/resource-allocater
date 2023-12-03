@@ -106,15 +106,32 @@ class UserRepository {
 
 	async UpdateUser(id, updated_user, return_updated_data = true) {
 		try {
-			const [updatedCount, updatedUser] = await this.User.update(
-				updated_user,
-				{
-					where: { id },
-					returning: return_updated_data,
-				}
-			);
-			const user = updatedUser[0].dataValues;
+			const updatedUser = await this.User.update(updated_user, {
+				where: { id: String(id) },
+				returning: true,
+			});
+			const user = this.FindOneUser({ id });
 			return user;
+		} catch (e) {
+			throw new APIError(
+				"API Error",
+				STATUS_CODES.INTERNAL_ERROR,
+				`Error while updating user ${e}`
+			);
+		}
+	}
+
+	async DeleteUser(id) {
+		try {
+			const delete_user = await this.User.destroy({ where: { id } });
+			if (delete_user.length == 0) {
+				return {
+					success: false,
+				};
+			}
+			return {
+				success: true,
+			};
 		} catch (e) {
 			throw new APIError(
 				"API Error",

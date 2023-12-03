@@ -15,7 +15,9 @@ import (
 var topic = "user-data"
 var temp_signal = make(chan bool)
 
-type User struct {
+type UserEvent struct {
+	Event string `json:"event"`
+	Data  struct {
 		ID                string `json:"id"`
 		Email             string `json:"email"`
 		FirstName         string `json:"first_name"`
@@ -28,7 +30,7 @@ type User struct {
 		SMSNotification   bool   `json:"sms_notification"`
 		Salt              string `json:"salt"`
 	}
-
+}
 
 func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 	wg.Add(1)
@@ -38,7 +40,7 @@ func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 	for {
 		select {
 		case <-temp_signal:
-			fmt.Println("Received termination signal. Closing Topic 1 consumer...")
+			fmt.Println("Received termination signal. Closing User Data Consumer...")
 			return
 		default:
 			msg, _ := kafkaConsumer.ReadMessage(time.Millisecond)
@@ -50,24 +52,70 @@ func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 	}
 }
 
-func ProcessData(msg *kafka.Message){
-	var user User
-	err := json.Unmarshal(msg.Value,&user)
-	if err!=nil{
+func ProcessData(msg *kafka.Message) {
+	var user UserEvent
+	err := json.Unmarshal(msg.Value, &user)
+	if err != nil {
 		fmt.Println("Error while parsing user")
 		return
 	}
-	query := fmt.Sprintf(`
+	event := user.Event
+	id := user.Data.ID
+	first_name := user.Data.FirstName
+	last_name := user.Data.LastName
+	email := user.Data.Email
+	password := user.Data.Password
+	phone_number := user.Data.PhoneNumber
+	gender := user.Data.Gender
+	salt := user.Data.Salt
+	verified := user.Data.Verified
+	email_notification := user.Data.EmailNotification
+	sms_notification := user.Data.SMSNotification
+
+	var userQuery , machineQuery string
+	machineQuery = ""
+	if event == "ADD_USER" {
+		userQuery = fmt.Sprintf(`
 		INSERT INTO user (
 			id, first_name, last_name, email, password, phone_number, gender, salt, verified, email_notification, sms_notification
-		) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %t, %t, %t)`,user.ID,user.FirstName,user.LastName,user.Email,user.Password,user.PhoneNumber,user.Gender,user.Salt,user.Verified,user.EmailNotification,user.SMSNotification)
-	// fmt.Println(query)
-	db_pool := utils.GetDB(utils.Db_name_mapping["resource-allocator"])
-	result,err := utils.QueryDatabase(db_pool,query)
-	if err!=nil{
-		fmt.Printf("error %s",err)
+		) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %t, %t, %t)`, id, first_name, last_name, email, password, phone_number, gender, salt, verified, email_notification, sms_notification)
+
+	} else if event == "DELETE_USER" {
+		userQuery = fmt.Sprintf(`
+			DELETE FROM user WHERE id = '%s'
+		`, id)
+		machineQuery = fmt.Sprintf(`
+			DELETE FROM machineallocation WHERE uid = '%s'
+		`,id)
+
+	} else if event == "UPDATE_USER" {
+		userQuery = fmt.Sprintf(`
+			UPDATE user 
+			SET 
+				first_name = '%s', 
+				last_name = '%s', 
+				email = '%s', 
+				password = '%s', 
+				phone_number = '%s', 
+				gender = '%s', 
+				salt = '%s', 
+				verified = %t, 
+				email_notification = %t, 
+				sms_notification = %t 
+			WHERE 
+				id = '%s'`,
+			first_name, last_name, email, password, phone_number, gender, salt, verified, email_notification, sms_notification, id)
 	}
-	utils.PrintResult(result)
+
+	db_pool := utils.GetSQLDB(utils.SQL_db_name_mapping["resource-allocator"])
+	result, err := utils.QuerySQLDatabase(db_pool, userQuery)
+	if machineQuery !="" {
+		result , err = utils.QuerySQLDatabase(db_pool,machineQuery)
+	}
+	if err != nil {
+		fmt.Printf("error %s", err)
+	}
+	utils.PrintSQLResult(result)
 }
 
 func UserDataConsumer() *utils.KafkaConsumer {

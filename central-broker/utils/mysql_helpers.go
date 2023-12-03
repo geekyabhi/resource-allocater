@@ -10,16 +10,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var pools map[string]*sql.DB
-var Db_name_mapping map[string]string
+var mysql_pools map[string]*sql.DB
+var SQL_db_name_mapping map[string]string
 
-func InitDB(host string, port int, user, password, dbName string) {
-	if pools == nil {
-		pools = make(map[string]*sql.DB)
+func InitSQLDB(host string, port int, user, password, dbName string) {
+	if mysql_pools == nil {
+		mysql_pools = make(map[string]*sql.DB)
 	}
 
-	if Db_name_mapping == nil {
-		Db_name_mapping = make(map[string]string)
+	if SQL_db_name_mapping == nil {
+		SQL_db_name_mapping = make(map[string]string)
 	}
 
 	// Build MySQL connection string
@@ -42,15 +42,15 @@ func InitDB(host string, port int, user, password, dbName string) {
 		log.Fatal(err)
 	}
 
-	pools[dbName] = db
+	mysql_pools[dbName] = db
 }
 
-func GetDB(dbName string) *sql.DB {
-	return pools[dbName]
+func GetSQLDB(dbName string) *sql.DB {
+	return mysql_pools[dbName]
 }
 
 // QueryDatabase executes a database query and returns the result set.
-func QueryDatabase(pool *sql.DB, query string) ([]map[string]interface{}, error) {
+func QuerySQLDatabase(pool *sql.DB, query string) ([]map[string]interface{}, error) {
 	rows, err := pool.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func QueryDatabase(pool *sql.DB, query string) ([]map[string]interface{}, error)
 	return result, nil
 }
 
-func PrintResult(result []map[string]interface{}) {
+func PrintSQLResult(result []map[string]interface{}) {
 	for _, row := range result {
 		for key, val := range row {
 			fmt.Printf("%s    ----------------->    ", key)

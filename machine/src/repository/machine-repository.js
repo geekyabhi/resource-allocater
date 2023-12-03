@@ -17,16 +17,8 @@ class MachineRepository {
 		isactive,
 		machine_id,
 		props,
+		default_port,
 	}) {
-		console.log(
-			name,
-			image,
-			image_name,
-			backGroundImage,
-			isactive,
-			machine_id,
-			props
-		);
 		try {
 			const machine = new Machine({
 				name,
@@ -36,6 +28,7 @@ class MachineRepository {
 				machine_id,
 				image_name,
 				props,
+				default_port,
 			});
 			const saved_machine = await machine.save();
 			return saved_machine;
@@ -81,11 +74,13 @@ class MachineRepository {
 	async UpdateMachine(machine_id, updated_values) {
 		try {
 			const machine = await Machine.findOne({ machine_id });
+			if (!machine) {
+				return {};
+			}
 			for (let key in machine) {
 				if (updated_values[key] != null)
 					machine[key] = updated_values[key];
 			}
-			console.log(machine);
 			const saved_machine = await machine.save();
 			return saved_machine;
 		} catch (e) {

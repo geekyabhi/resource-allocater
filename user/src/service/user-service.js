@@ -159,7 +159,7 @@ class UserService {
 			const filtered_updates = {};
 
 			for (let key in updates) {
-				if (updates[key] !== null) {
+				if (updates[key] != null) {
 					filtered_updates[key] = updates[key];
 				}
 			}
@@ -194,11 +194,18 @@ class UserService {
 				);
 				filtered_updates.password = userPassword;
 			}
-
 			const user = await this.repository.UpdateUser(id, filtered_updates);
-			delete user["salt"];
-			delete user["password"];
 			return user;
+		} catch (e) {
+			throw new APIError(e, e.statusCode);
+		}
+	}
+
+	async DeleteUser(id) {
+		try {
+			console.log(id);
+			const data = this.repository.DeleteUser(id);
+			return data;
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}

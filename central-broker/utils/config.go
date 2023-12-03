@@ -20,6 +20,9 @@ type AppConfig struct {
 	ResourceAllocatorAllocatorPassword string
 	ResourceAllocatorUserPort int
 	ResourceAllocatorAllocatorPort int
+	ResourceAllocatorMachineDbName  string 
+	ResourceAllocatorMachineURI  string 
+	ResourceAllocatorMachinePort  int  
 }
 
 func Load() (*AppConfig, error) {
@@ -41,6 +44,9 @@ func Load() (*AppConfig, error) {
 		ResourceAllocatorAllocatorHost: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_HOST"),
 		ResourceAllocatorAllocatorPassword: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PASSWORD"),
 		ResourceAllocatorAllocatorPort:3307,
+
+		ResourceAllocatorMachineDbName:os.Getenv("RESOURCE_ALLOCATOR_MACHINE_DB_NAME"),
+		ResourceAllocatorMachineURI:os.Getenv("RESOURCE_ALLOCATOR_MACHINE_URI"),
 		// KafkaUsername: os.Getenv("KAFKA_USERNAME"),
 		// KafkaPassword: os.Getenv("KAFKA_PASSWORD"),
 	}

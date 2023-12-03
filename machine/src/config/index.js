@@ -16,6 +16,7 @@ const config = {
 	PRODUCT_BINDING_KEY: "PRODUCT_SERVICE",
 	MAIL_BINDING_KEY: "MAIL_SERVICE",
 	QUEUE_NAME: "ECOMMERCE_QUEUE",
+	KAFKA_BROKER_URI: process.env.KAFKA_BROKER_URI,
 };
 
 module.exports = config;

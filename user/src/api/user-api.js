@@ -18,4 +18,6 @@ module.exports = (app) => {
 	app.put("/", Auth, userController.updateUser);
 
 	app.get("/profile", Auth, userController.getUserProfile);
+
+	app.delete("/", Auth, userController.deleteUser);
 };
