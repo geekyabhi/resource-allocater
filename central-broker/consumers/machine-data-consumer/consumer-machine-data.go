@@ -13,7 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+var cfg, _ = utils.Load()
 var topic = "machine-data"
+var collection = "machines"
+var db_name = cfg.ResourceAllocatorMachineDbName
 var temp_signal = make(chan bool)
 
 type MachineEvent struct {
@@ -47,7 +50,6 @@ func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 		default:
 			msg, _ := kafkaConsumer.ReadMessage(time.Millisecond)
 			if msg != nil {
-				// fmt.Printf("Topic User Data - Received message: Key: %s, Value: %s\n", string(msg.Key), string(msg.Value))
 				ProcessData(msg)
 			}
 		}
@@ -75,11 +77,11 @@ func ProcessData(msg *kafka.Message) {
 			"createdAt":       machineMessageData.Data.CreatedAt,
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}
-		utils.InsertOne("allocator", "machines", data_to_insert)
+		utils.InsertOne(db_name, collection, data_to_insert)
 
 	} else if machineMessageData.Event == "DELETE_MACHINE" {
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
-		utils.DeleteOne("allocator", "machines", filter)
+		utils.DeleteOne(db_name, collection, filter)
 	} else if machineMessageData.Event == "UPDATE_MACHINE" {
 
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
@@ -96,7 +98,7 @@ func ProcessData(msg *kafka.Message) {
 			"createdAt":       machineMessageData.Data.CreatedAt,
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}}
-		utils.UpdateOne("allocator", "machines", filter, data_to_update)
+		utils.UpdateOne(db_name, collection, filter, data_to_update)
 	}
 
 }

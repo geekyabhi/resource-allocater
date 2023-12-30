@@ -9,12 +9,23 @@ const {
 	GenerateSignature,
 	FilterValues,
 	GenerateUUID,
+	VerifyOTPUtil,
+	CanSendOTP,
+	GenerateOTP,
 } = require("../utils/functions");
 
 const { APIError, BadRequestError } = require("../utils/error/app-errors");
+const { RedisUtil } = require("../utils/cache");
+
+
+const KafkaProducerHandler = require("../utils/message-broker/kafka-message-broker");
+const kafkaProducer = new KafkaProducerHandler();
+const USER_DATA_TOPIC = "user-data";
+
 class UserService {
 	constructor() {
 		this.repository = new UserRepository();
+		this.redis = new RedisUtil();
 	}
 
 	async Register(inputs) {
@@ -72,6 +83,16 @@ class UserService {
 				salt,
 				verified: false,
 			});
+
+			const publish_data = {
+				event: "ADD_USER",
+				data: new_user,
+			};
+
+			await kafkaProducer.Produce(
+				USER_DATA_TOPIC,
+				JSON.stringify(publish_data)
+			);
 
 			return FormateData({
 				id: new_user.id,
@@ -146,6 +167,7 @@ class UserService {
 	async FindOneUser(filters) {
 		try {
 			const raw_user = await this.repository.FindOneUser(filters);
+			if(!raw_user) return null
 			delete raw_user["salt"];
 			delete raw_user["password"];
 			return raw_user;
@@ -195,7 +217,18 @@ class UserService {
 				filtered_updates.password = userPassword;
 			}
 			const user = await this.repository.UpdateUser(id, filtered_updates);
+			
+			const publish_data = {
+				event: "UPDATE_USER",
+				data: user,
+			};
+			await kafkaProducer.Produce(
+				USER_DATA_TOPIC,
+				JSON.stringify(publish_data)
+			);
+			
 			return user;
+			
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
@@ -203,13 +236,65 @@ class UserService {
 
 	async DeleteUser(id) {
 		try {
-			console.log(id);
-			const data = this.repository.DeleteUser(id);
+			const data = await this.repository.DeleteUser(id);
+			if (data?.success) {
+				const publish_data = {
+					event: "DELETE_USER",
+					data: {
+						id,
+					},
+				};
+				await kafkaProducer.Produce(
+					USER_DATA_TOPIC,
+					JSON.stringify(publish_data)
+				);
+			}
 			return data;
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
 	}
+
+	async SendOTP(email){
+		try {
+			const user_data = await this.FindOneUser({ email });
+			if(!user_data) return {"message":"No such user found"}
+			const data = await CanSendOTP(this.redis, email);
+			if (!data.can_send)
+				return {
+					data: `Cant send OTP until ${data.time_remaining} seconds`,
+				};
+			const otp = GenerateOTP(6);
+			await this.redis.RedisSET(email, otp, 60);
+			return {
+				"message":`OTP send ${otp}`
+			}
+			
+		} catch (e) {
+			throw new APIError(e,e.statusCode)
+		}
+	}
+	async VerifyOTP(email,otp){
+		try {
+			const user = await this.FindOneUser({ email });
+			const verified = await VerifyOTPUtil(this.redis,otp,email)
+			if(!verified){
+				return {
+					"message":"Wrong OTP"
+				}
+			}
+			if(!user){
+				return {
+					"message":"No such user"
+				}
+			}
+			const updatedUser = await this.UpdateUser(user.id,{"verified":true})
+			return updatedUser
+		} catch (e) {
+			throw new APIError(e,e.statusCode)
+		}
+	}
+
 }
 
 module.exports = UserService;

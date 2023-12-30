@@ -92,7 +92,7 @@ class UserRepository {
 		try {
 			const user = await this.User.findOne({ where: filters });
 			if (!user) {
-				return null;
+				return null
 			}
 			return user.dataValues;
 		} catch (e) {

@@ -25,8 +25,11 @@ class MongoDBClient:
         self.client.close()
 
     def read(self, filter):
-        result = self.collection.find_one(filter)
-        return result
+        try:
+            result = self.collection.find_one(filter)
+            return result
+        except Exception as e:
+            raise Exception (e)
 
     def write(self, data):
         inserted_data = self.collection.insert_one(data)
@@ -56,3 +59,5 @@ class MongoDBClient:
     def delete_many(self, filter_data):
         deleted_result = self.collection.delete_many(filter_data)
         return deleted_result
+
+MongoDBClient()

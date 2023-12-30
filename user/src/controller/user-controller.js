@@ -1,19 +1,8 @@
 const { UserService } = require("../service");
-const { RedisUtil } = require("../utils/cache");
-const { APIError } = require("../utils/error/app-errors");
-const {
-	GenerateOTP,
-	CanSendOTP,
-	VerifyOTP,
-	SendOTP,
-} = require("../utils/functions");
-const KafkaProducerHandler = require("../utils/message-broker/kafka-message-broker");
-const kafkaProducer = new KafkaProducerHandler();
-const USER_DATA_TOPIC = "user-data";
+
 class UserController {
 	constructor() {
 		this.service = new UserService();
-		this.redis = new RedisUtil();
 	}
 
 	signUP = async (req, res, next) => {
@@ -45,15 +34,7 @@ class UserController {
 				id: data.id,
 			};
 
-			const publish_data = {
-				event: "ADD_USER",
-				data: data,
-			};
-
-			await kafkaProducer.Produce(
-				USER_DATA_TOPIC,
-				JSON.stringify(publish_data)
-			);
+			
 
 			return res.json({ success: true, data: filter_data });
 		} catch (e) {
@@ -75,23 +56,9 @@ class UserController {
 
 	sendOTP = async (req, res, next) => {
 		try {
-			const { email } = req.body;
-			const user_data = await this.service.FindOneUser({ email });
-			const data = await CanSendOTP(this.redis, email);
-			if (!data.can_send)
-				return res.json({
-					success: false,
-					data: `Cant send OTP until ${data.time_remaining} seconds`,
-				});
-
-			const otp = GenerateOTP(6);
-
-			console.log(otp);
-			// SendOTP(otp, user_data, rabbitMq);
-
-			await this.redis.RedisSET(email, otp, 60);
-
-			return res.json({ success: true, data: "OTP send to the email" });
+			const { email } = req.body;	
+			const data = await this.service.SendOTP(email)
+			return res.json({ success: true, data});
 		} catch (e) {
 			next(e);
 		}
@@ -99,19 +66,23 @@ class UserController {
 
 	verifyOTP = async (req, res, next) => {
 		try {
-			const { otp, email } = req.body;
-
-			const user = await this.service.FindOneUser({ email });
-
-			await VerifyOTP(this.redis, otp, email);
-
-			const updatedUser = await this.service.UpdateUser(user.id, {
-				verified: 1,
-			});
+			const { otp, email } = req.query;
+			
+			const data = await this.service.VerifyOTP(email,otp)
+			
+			const filter_data = {
+				sms_notification: data.sms_notification,
+				email_notification: data.email_notification,
+				phone: data.phone_number,
+				first_name: data.first_name,
+				last_name: data.last_name,
+				email: data.email,
+				id: data.id,
+			};
 
 			return res.json({
 				success: true,
-				data: updatedUser,
+				filter_data
 			});
 		} catch (e) {
 			next(e);
@@ -142,14 +113,7 @@ class UserController {
 				email: data.email,
 				id: data.id,
 			};
-			const publish_data = {
-				event: "UPDATE_USER",
-				data: data,
-			};
-			await kafkaProducer.Produce(
-				USER_DATA_TOPIC,
-				JSON.stringify(publish_data)
-			);
+			
 			return res.json({ success: true, data: filter_data });
 		} catch (e) {
 			next(e);
@@ -170,18 +134,7 @@ class UserController {
 		try {
 			const id = req.user.id;
 			const data = await this.service.DeleteUser(id);
-			if (data?.success) {
-				const publish_data = {
-					event: "DELETE_USER",
-					data: {
-						id,
-					},
-				};
-				await kafkaProducer.Produce(
-					USER_DATA_TOPIC,
-					JSON.stringify(publish_data)
-				);
-			}
+			
 			return res.json(data);
 		} catch (e) {
 			next(e);

@@ -91,14 +91,14 @@ function GenerateUniqueString(length = 14) {
 	return randomBytes.slice(0, length);
 }
 
-const VerifyOTP = (redisClient, provided_otp, key_email) => {
+const VerifyOTPUtil = (redisClient, provided_otp, key_email) => {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const cache_otp = await redisClient.RedisGET(key_email);
 			if (provided_otp === "000000") resolve(true);
-			if (!cache_otp) throw new BadRequestError("OTP expired");
+			if (!cache_otp) resolve(false)
 			if (String(cache_otp) != String(provided_otp))
-				throw new BadRequestError("Wrong OTP");
+				resolve(false)
 
 			resolve(true);
 		} catch (e) {
@@ -167,7 +167,7 @@ module.exports = {
 	GenerateOTP,
 	CreateUniqueName,
 	GenerateUniqueString,
-	VerifyOTP,
+	VerifyOTPUtil,
 	CanSendOTP,
 	FilterValues,
 	SendOTP,

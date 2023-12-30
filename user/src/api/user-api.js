@@ -11,7 +11,7 @@ module.exports = (app) => {
 
 	app.post("/send-otp", userController.sendOTP);
 
-	app.post("/verify", userController.verifyOTP);
+	app.get("/verify", userController.verifyOTP);
 
 	app.get("/", userController.getAllUsers);
 

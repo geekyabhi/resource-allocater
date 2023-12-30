@@ -14,6 +14,8 @@ import (
 
 var topic = "user-data"
 var temp_signal = make(chan bool)
+var cfg, _ = utils.Load()
+var db_name = cfg.ResourceAllocatorAllocatorDbName
 
 type UserEvent struct {
 	Event string `json:"event"`
@@ -72,7 +74,7 @@ func ProcessData(msg *kafka.Message) {
 	email_notification := user.Data.EmailNotification
 	sms_notification := user.Data.SMSNotification
 
-	var userQuery , machineQuery string
+	var userQuery, machineQuery string
 	machineQuery = ""
 	if event == "ADD_USER" {
 		userQuery = fmt.Sprintf(`
@@ -86,7 +88,7 @@ func ProcessData(msg *kafka.Message) {
 		`, id)
 		machineQuery = fmt.Sprintf(`
 			DELETE FROM machineallocation WHERE uid = '%s'
-		`,id)
+		`, id)
 
 	} else if event == "UPDATE_USER" {
 		userQuery = fmt.Sprintf(`
@@ -106,11 +108,10 @@ func ProcessData(msg *kafka.Message) {
 				id = '%s'`,
 			first_name, last_name, email, password, phone_number, gender, salt, verified, email_notification, sms_notification, id)
 	}
-
-	db_pool := utils.GetSQLDB(utils.SQL_db_name_mapping["resource-allocator"])
+	db_pool := utils.GetSQLDB(db_name)
 	result, err := utils.QuerySQLDatabase(db_pool, userQuery)
-	if machineQuery !="" {
-		result , err = utils.QuerySQLDatabase(db_pool,machineQuery)
+	if machineQuery != "" {
+		result, err = utils.QuerySQLDatabase(db_pool, machineQuery)
 	}
 	if err != nil {
 		fmt.Printf("error %s", err)
