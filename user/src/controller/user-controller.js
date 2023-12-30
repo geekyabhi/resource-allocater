@@ -32,6 +32,7 @@ class UserController {
 				last_name: data.last_name,
 				email: data.email,
 				id: data.id,
+				admin:data.admin
 			};
 
 			
@@ -140,6 +141,17 @@ class UserController {
 			next(e);
 		}
 	};
+
+	makeAdmin = async(req,res,next)=>{
+		try{
+			const {email} = req.body
+			const data = await this.service.MakeAdmin(email)
+			return res.json({ success: true, data });
+
+		}catch(e){
+			next(e)
+		}
+	}
 }
 
 module.exports = UserController;

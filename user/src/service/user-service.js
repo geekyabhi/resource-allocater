@@ -14,7 +14,7 @@ const {
 	GenerateOTP,
 } = require("../utils/functions");
 
-const { APIError, BadRequestError } = require("../utils/error/app-errors");
+const { APIError, BadRequestError, AppError } = require("../utils/error/app-errors");
 const { RedisUtil } = require("../utils/cache");
 
 
@@ -64,10 +64,10 @@ class UserService {
 			if (exis_user > 0) throw new BadRequestError("Email Already exist");
 
 			exis_user = await this.repository.FindUsersCount({ phone_number });
-
 			if (exis_user > 0)
 				throw new BadRequestError("Number already exist");
-
+			
+			const totalCount = await this.repository.FindUsersCount({})
 			const salt = await GenerateSalt();
 			const userPassword = await GeneratePassword(password, salt);
 			const id = await GenerateUUID();
@@ -82,13 +82,13 @@ class UserService {
 				gender,
 				salt,
 				verified: false,
+				admin : Boolean(totalCount==0)
 			});
 
 			const publish_data = {
 				event: "ADD_USER",
 				data: new_user,
 			};
-
 			await kafkaProducer.Produce(
 				USER_DATA_TOPIC,
 				JSON.stringify(publish_data)
@@ -106,6 +106,7 @@ class UserService {
 				email_notification: new_user.email_notification,
 				sms_notification: new_user.sms_notification,
 				salt: new_user.salt,
+				admin : new_user.admin
 			});
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
@@ -142,6 +143,7 @@ class UserService {
 				first_name: exis_user.first_name,
 				last_name: exis_user.last_name,
 				phone_number: exis_user.phone_number,
+				admin:exis_user.admin,
 				token: token,
 			});
 		} catch (e) {
@@ -292,6 +294,21 @@ class UserService {
 			return updatedUser
 		} catch (e) {
 			throw new APIError(e,e.statusCode)
+		}
+	}
+
+	async MakeAdmin(email){
+		try{
+			const user = await this.FindOneUser({email})
+			if(!user){
+				return {
+					"message":"No such user exists"
+				}
+			}
+			const updatedUser = await this.UpdateUser(user.id,{"admin":true})
+			return updatedUser
+		}catch(e){
+			throw new AppError(e,e.statusCode)
 		}
 	}
 

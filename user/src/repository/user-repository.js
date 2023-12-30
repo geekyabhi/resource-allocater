@@ -22,6 +22,7 @@ class UserRepository {
 		created_at,
 		gender,
 		salt,
+		admin
 	}) {
 		try {
 			const user = {
@@ -34,10 +35,11 @@ class UserRepository {
 				created_at,
 				gender,
 				salt,
+				admin
 			};
 
 			const created_user = await this.User.create(user);
-			return created_user;
+			return created_user.dataValues;
 		} catch (e) {
 			throw new APIError(
 				"API Error",

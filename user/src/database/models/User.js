@@ -38,6 +38,10 @@ class UserModel {
 					type: DataTypes.BOOLEAN,
 					defaultValue: false,
 				},
+				admin: {
+					type: DataTypes.BOOLEAN,
+					defaultValue: false,
+				},
 				email_notification: {
 					type: DataTypes.BOOLEAN,
 					defaultValue: true,

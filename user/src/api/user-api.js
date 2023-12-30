@@ -1,6 +1,6 @@
 const { UserController } = require("../controller");
+const Admin = require("../middlewares/admin");
 const Auth = require("../middlewares/auth");
-const { RedisSET, RedisGET, RedisUtil } = require("../utils/cache");
 
 module.exports = (app) => {
 	const userController = new UserController();
@@ -20,4 +20,6 @@ module.exports = (app) => {
 	app.get("/profile", Auth, userController.getUserProfile);
 
 	app.delete("/", Auth, userController.deleteUser);
+
+	app.post('/makeAdmin',Auth,Admin,userController.makeAdmin)
 };

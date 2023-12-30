@@ -54,18 +54,20 @@ func GetMongoDBClient(dbName string) *mongo.Client {
 	return mongoClients[dbName]
 }
 
-// QueryMongoDB executes a database query and returns the result set.
-
-func InsertOne(dbName, collectionName string, document interface{}) (*mongo.InsertOneResult, error) {
-	// Set up a context with a timeout
-
+func InsertOne(dbName, collectionName string, document interface{}, realDBName ...string) (*mongo.InsertOneResult, error) {
 	client := GetMongoDBClient(dbName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	// Access a MongoDB collection
-	collection := client.Database(dbName).Collection(collectionName)
 
-	// Perform an insert operation
+	var targetDBName string
+	if len(realDBName) > 0 && realDBName[0] != "" {
+		targetDBName = realDBName[0]
+	} else {
+		targetDBName = dbName
+	}
+
+	collection := client.Database(targetDBName).Collection(collectionName)
+
 	result, err := collection.InsertOne(ctx, document)
 	if err != nil {
 		return nil, err
@@ -74,7 +76,7 @@ func InsertOne(dbName, collectionName string, document interface{}) (*mongo.Inse
 	return result, nil
 }
 
-func UpdateOne(dbName, collectionName string, filter, update interface{}) (*mongo.UpdateResult, error) {
+func UpdateOne(dbName, collectionName string, filter, update interface{}, realDBName ...string) (*mongo.UpdateResult, error) {
 
 	client := GetMongoDBClient(dbName)
 
@@ -82,8 +84,14 @@ func UpdateOne(dbName, collectionName string, filter, update interface{}) (*mong
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Access a MongoDB collection
-	collection := client.Database(dbName).Collection(collectionName)
+	var targetDBName string
+	if len(realDBName) > 0 && realDBName[0] != "" {
+		targetDBName = realDBName[0]
+	} else {
+		targetDBName = dbName
+	}
+
+	collection := client.Database(targetDBName).Collection(collectionName)
 
 	// Perform an update operation
 	result, err := collection.UpdateOne(ctx, filter, update)
@@ -94,16 +102,20 @@ func UpdateOne(dbName, collectionName string, filter, update interface{}) (*mong
 	return result, nil
 }
 
-func DeleteOne(dbName, collectionName string, filter interface{}) (*mongo.DeleteResult, error) {
+func DeleteOne(dbName, collectionName string, filter interface{}, realDBName ...string) (*mongo.DeleteResult, error) {
 	client := GetMongoDBClient(dbName)
-
-	// Set up a context with a timeout
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Access a MongoDB collection
-	collection := client.Database(dbName).Collection(collectionName)
+	var targetDBName string
+	if len(realDBName) > 0 && realDBName[0] != "" {
+		targetDBName = realDBName[0]
+	} else {
+		targetDBName = dbName
+	}
+
+	collection := client.Database(targetDBName).Collection(collectionName)
 
 	// Perform a delete operation
 	result, err := collection.DeleteOne(ctx, filter)

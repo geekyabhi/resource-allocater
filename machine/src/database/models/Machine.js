@@ -11,6 +11,7 @@ const MachineSchema = new Schema(
 		image: { type: String },
 		backGroundImage: { type: String },
 		isactive: { type: Boolean, default: false },
+		uid :{type:String , required :true},
 		machine_id: {
 			type: String,
 			default: uuidv4,

@@ -12,6 +12,7 @@ class UserModel(models.Model):
     gender = models.CharField(max_length=255, null=True)
     salt = models.CharField(max_length=255, null=True)
     verified = models.BooleanField(default=False)
+    admin = models.BooleanField(default=False)
     email_notification = models.BooleanField(default=True)
     sms_notification = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
