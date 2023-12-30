@@ -67,11 +67,6 @@ class UserController {
 
 			const { data } = await this.service.Login({ email, password });
 
-			// rabbitMq.PublishMessage(
-			// 	rabbitMq.MAIL_BINDING_KEY,
-			// 	JSON.stringify({ ...data, event: "profile_loggedin" })
-			// );
-
 			return res.json({ success: true, data });
 		} catch (e) {
 			next(e);

@@ -1,7 +1,6 @@
-from decouple import config
-
-ENV_FILE_NAME = ".env"
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class ConfigUtil:
     def __init__(self) -> None:
@@ -20,10 +19,7 @@ class ConfigUtil:
             "KAFKA_USER_NAME",
             "KAFKA_PASSWORD",
         ]
-        config._load(".env")
 
     def get_config_data(self):
-        config_dict = {}
-        for key in self.config_keys:
-            config_dict[key] = config(key)
+        config_dict = {key : os.getenv(key) for key in self.config_keys}
         return config_dict

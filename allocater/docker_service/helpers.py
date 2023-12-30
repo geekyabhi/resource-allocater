@@ -1,14 +1,16 @@
 import docker
-
+import random
 
 class DockerManager:
     def __init__(self) -> None:
         self.client = docker.from_env()
 
     def start_container(
-        self, image, container_name, ports=None, command=None, detach=True
+        self, image, container_name, default_port, command=None, detach=True
     ):
         try:
+            random_port = self.get_random_port()
+            ports = {f"{default_port}": f"{random_port}"}
             if ports is None:
                 ports = {}
 
@@ -20,15 +22,7 @@ class DockerManager:
                 detach=detach,
             )
 
-            container_details = {
-                "container_id": container.short_id,
-                "container_name": container.name,
-                "image": container.image.tags[0],
-                "ports": container.ports,
-                "status": container.status,
-            }
-
-            return container_details
+            return container , random_port
 
         except Exception as e:
             raise Exception(f"Container cannot be started {str(e)}")
@@ -64,7 +58,7 @@ class DockerManager:
 
     def start_stopped_container(self, container_id):
         container = self.get_container_by_id(container_id)
-        if container and container.status == "exited":
+        if container:
             container.start()
         else:
             raise Exception(f"Conatiner {container_id} not found")
@@ -83,3 +77,32 @@ class DockerManager:
             container.remove()
         else:
             raise Exception(f"Conatiner {container_id} not found")
+
+
+    def get_occupied_ports(self):
+
+        occupied_ports = set()
+
+        containers = self.client.containers.list()
+
+        for container in containers:
+            container_info = container.attrs
+
+            network_settings = container_info.get('NetworkSettings', {})
+            ports = network_settings.get('Ports', {})
+
+            for port_info in ports.values():
+                if port_info is not None:
+                    for host_port_info in port_info:
+                        host_port = host_port_info.get('HostPort')
+                        if host_port:
+                            occupied_ports.add(int(host_port))
+
+        return list(occupied_ports)
+    
+    def get_random_port(self):
+        available_ports = set(range(49152, 65536)) - set(self.get_occupied_ports())
+        if not available_ports:
+            raise Exception(f"Ports not found")
+        random_port = random.choice(list(available_ports))
+        return random_port

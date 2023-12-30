@@ -1,10 +1,11 @@
 from docker_service.helpers import DockerManager
 from utils.mongodb import MongoDBClient
 from utils.ports_helpers import PortUtil
-
+from .models import MachineAllocation
 
 class MachineAllocationService:
     def __init__(self) -> None:
+        self.model = MachineAllocation()
         self.docker = DockerManager()
         self.mongo_client = MongoDBClient()
         self.ports_util = PortUtil()
@@ -16,41 +17,61 @@ class MachineAllocationService:
             data = self.mongo_client.read({"machine_id": machine_id})
             image = data.get("image_name")
             default_port = data.get("default_port")
-            mapping_port = self.ports_util.add_port_with_base(int(default_port))
-            container_data = self.docker.start_container(
-                image, container_name, {f"{default_port}": f"{mapping_port}"}
+            container , mapping_port = self.docker.start_container(
+                image, container_name, default_port
             )
-            container_data["starting_date"] = starting_date
-            container_data["ending_date"] = ending_date
-            container_data["is_active"] = True
-            container_data["machine_id"] = machine_id
-            container_data["machine_name"] = image
-            container_data["port_used"] = mapping_port
-            container_data["status"] = "active"
-            container_data["uid"] = uid
-            return container_data
+            allocation_data = {
+                "machine_id" : machine_id , 
+                "container_id" : str(container.short_id) , 
+                "starting_date" : starting_date ,
+                "end_date" : ending_date ,
+                "is_active" : True ,
+                "status" : "active" ,
+                "machine_name" : image ,
+                "container_name" : container.name , 
+                "port_used" : mapping_port ,
+                "uid" : uid
+            }
+            allocated_machine = self.model.add(allocation_data)
+            return allocated_machine
         except Exception as e:
             raise Exception(e)
 
-    def delete_machine(self, instance_data):
+    def delete_machine(self, container_id):
         try:
-            container_id = instance_data.get("container_id")
-            port_used = instance_data.get("port_used")
+            container_data = self.model.get({"container_id":container_id})
             self.docker.remove_container_by_id(container_id)
-            self.ports_util.remove_port(int(port_used))
+            self.ports_util.remove_port(int(container_data.get("port_used")))
+            self.model.delet(container_id)
         except Exception as e:
             raise Exception(e)
 
-    def stop_machine(self, instance_data):
+    def stop_machine(self, container_id):
         try:
-            container_id = instance_data.get("container_id")
             self.docker.stop_container_by_id(container_id)
+            data = self.model.update(container_id,{"status":"stopped"})
+            return data
         except Exception as e:
             raise Exception(e)
 
-    def start_machine(self, instance_data):
+    def start_machine(self, container_id):
         try:
-            container_id = instance_data.get("container_id")
             self.docker.start_stopped_container(container_id)
+            data=self.model.update(container_id,{"status":"active"})
+            return data
+        except Exception as e:
+            raise Exception(e)
+
+    def get_machine(self ,container_id):
+        try:
+            data = self.model.get({"container_id":container_id})
+            return data
+        except Exception as e:
+            raise Exception(e)
+        
+    def get_all_machines(self,filters):
+        try:
+            data = self.model.get_many(filters)
+            return data
         except Exception as e:
             raise Exception(e)

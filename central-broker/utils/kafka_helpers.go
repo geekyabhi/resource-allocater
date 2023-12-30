@@ -21,6 +21,32 @@ func NewKafkaConsumer(topic string, groupID string) (*KafkaConsumer, error) {
 		"auto.offset.reset": "earliest",
 		"security.protocol": "plaintext", // Use "plaintext" for plain text without authentication
 	}
+	adminClient, err := kafka.NewAdminClient(config)
+
+	if err != nil {
+        return nil, fmt.Errorf("error creating Kafka admin client: %v", err)
+    }
+
+	topicMetadata, err := adminClient.GetMetadata(&topic, false, 5000)
+    if err != nil {
+        return nil, fmt.Errorf("error getting topic metadata for %s: %v", topic, err)
+    }
+
+	if len(topicMetadata.Topics) == 0 {
+        // Topic does not exist, create it
+        topicConfig := &kafka.TopicSpecification{
+            Topic:             topic,
+            NumPartitions:     1,
+            ReplicationFactor: 1,
+        }
+
+        _, err := adminClient.CreateTopics(context.Background(), []*kafka.TopicSpecification{topicConfig})
+        if err != nil {
+            return nil, fmt.Errorf("error creating topic %s: %v", topic, err)
+        }
+
+        fmt.Printf("Topic %s created successfully\n", topic)
+    }
 
 	consumer, err := kafka.NewConsumer(config)
 	if err != nil {
