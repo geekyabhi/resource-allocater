@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cassandra_engine',
-    'comments'
+    'comments',
+    'likes'
 ]
 
 MIDDLEWARE = [
