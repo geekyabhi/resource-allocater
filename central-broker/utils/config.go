@@ -25,6 +25,8 @@ type AppConfig struct {
 	ResourceAllocatorMachinePort         int
 	ResourceAllocatorMachineMasterDbName string
 	ResourceAllocatorMachineMasterURI    string
+	ResourceAllocatorMachineFeedDbName   string
+	ResourceAllocatorMachineFeedURI      string
 }
 
 func Load() (*AppConfig, error) {
@@ -52,6 +54,9 @@ func Load() (*AppConfig, error) {
 
 		ResourceAllocatorMachineMasterDbName: os.Getenv("RESOURCE_ALLOCATOR_MACHINE_MASTER_DB_NAME"),
 		ResourceAllocatorMachineMasterURI:    os.Getenv("RESOURCE_ALLOCATOR_MACHINE_MASTER_URI"),
+
+		ResourceAllocatorMachineFeedDbName: os.Getenv("RESOURCE_ALLOCATOR_MACHINE_FEED_DB_NAME"),
+		ResourceAllocatorMachineFeedURI:    os.Getenv("RESOURCE_ALLOCATOR_MACHINE_FEED_URI"),
 
 		// KafkaUsername: os.Getenv("KAFKA_USERNAME"),
 		// KafkaPassword: os.Getenv("KAFKA_PASSWORD"),

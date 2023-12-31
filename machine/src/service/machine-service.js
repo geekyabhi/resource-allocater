@@ -24,10 +24,10 @@ class MachineService {
 		props,
 		image_name,
 		default_port,
+		uid
 	}) {
 		try {
 			const machine_id = GenerateUUID();
-
 			const machine = await this.repository.AddMachine({
 				name,
 				image,
@@ -36,6 +36,7 @@ class MachineService {
 				props,
 				image_name,
 				default_port,
+				uid
 			});
 			return FormateData({
 				id: machine._id,
@@ -44,6 +45,7 @@ class MachineService {
 				props: machine.props,
 				machine_id: machine.machine_id,
 				image_name: machine.image_name,
+				uid:machine.uid,
 				image: machine.image,
 				backGroundImage: machine.backGroundImage,
 				default_port: machine.default_port,

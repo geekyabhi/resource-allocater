@@ -18,6 +18,7 @@ class MachineRepository {
 		machine_id,
 		props,
 		default_port,
+		uid
 	}) {
 		try {
 			const machine = new Machine({
@@ -29,6 +30,7 @@ class MachineRepository {
 				image_name,
 				props,
 				default_port,
+				uid
 			});
 			const saved_machine = await machine.save();
 			return saved_machine;

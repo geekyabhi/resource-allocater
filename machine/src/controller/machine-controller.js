@@ -24,6 +24,7 @@ class MachineController {
 				props,
 				image_name,
 				default_port,
+				uid:req.user.id
 			});
 			const publishData = {
 				event: "ADD_MACHINE",

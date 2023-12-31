@@ -18,6 +18,7 @@ var temp_signal = make(chan bool)
 var cfg, _ = utils.Load()
 var db_name = cfg.ResourceAllocatorAllocatorDbName
 var mongo_master_db_name = cfg.ResourceAllocatorMachineMasterDbName
+var feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
 var collection = "users"
 
 type UserEvent struct {
@@ -101,8 +102,8 @@ func ProcessData(msg *kafka.Message) {
 			"email_notification": email_notification,
 			"sms_notification":   sms_notification,
 		}
-		fmt.Println("dcjijcijdijdicjijcijicjicjidjcidjcijdicjdijci")
 		utils.InsertOne(mongo_master_db_name, collection, mongo_data_to_insert, "machines")
+		utils.InsertOne(feed_db_name, collection, mongo_data_to_insert, "machines")
 
 	} else if event == "DELETE_USER" {
 		userQuery = fmt.Sprintf(`
@@ -113,6 +114,7 @@ func ProcessData(msg *kafka.Message) {
 		`, id)
 		filter := bson.M{"id": id}
 		utils.DeleteOne(mongo_master_db_name, collection, filter, "machines")
+		utils.DeleteOne(feed_db_name, collection, filter, "machines")
 
 	} else if event == "UPDATE_USER" {
 		userQuery = fmt.Sprintf(`
@@ -148,6 +150,7 @@ func ProcessData(msg *kafka.Message) {
 			"sms_notification":   sms_notification,
 		}}
 		utils.UpdateOne(mongo_master_db_name, collection, filter, mongo_data_to_update, "machines")
+		utils.UpdateOne(feed_db_name, collection, filter, mongo_data_to_update, "machines")
 
 	}
 	db_pool := utils.GetSQLDB(db_name)

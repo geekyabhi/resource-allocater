@@ -36,6 +36,9 @@ var machine_db_uri = cfg.ResourceAllocatorMachineURI
 var machine_master_db_name = cfg.ResourceAllocatorMachineMasterDbName
 var machine_master_db_uri = cfg.ResourceAllocatorMachineMasterURI
 
+var machine_feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
+var machine_feed_db_uri = cfg.ResourceAllocatorMachineFeedURI
+
 func initiateAllDB() {
 
 	utils.InitSQLDB(allocator_host, allocator_port, allocator_user_name, allocator_password, allocator_db_name)
@@ -49,6 +52,9 @@ func initiateAllDB() {
 
 	utils.InitMongoDB(machine_master_db_uri, machine_master_db_name)
 	utils.Mongo_db_name_mapping["resource-machine-master"] = machine_master_db_name
+
+	utils.InitMongoDB(machine_feed_db_uri, machine_feed_db_name)
+	utils.Mongo_db_name_mapping["resource-machine-feed"] = machine_feed_db_name
 }
 
 func main() {

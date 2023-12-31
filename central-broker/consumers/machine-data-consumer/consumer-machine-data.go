@@ -17,6 +17,7 @@ var cfg, _ = utils.Load()
 var topic = "machine-data"
 var collection = "machines"
 var db_name = cfg.ResourceAllocatorMachineDbName
+var feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
 var temp_signal = make(chan bool)
 
 type MachineEvent struct {
@@ -78,10 +79,12 @@ func ProcessData(msg *kafka.Message) {
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}
 		utils.InsertOne(db_name, collection, data_to_insert)
+		utils.InsertOne(feed_db_name, collection, data_to_insert, "machines")
 
 	} else if machineMessageData.Event == "DELETE_MACHINE" {
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
 		utils.DeleteOne(db_name, collection, filter)
+		utils.DeleteOne(feed_db_name, collection, filter, "machines")
 	} else if machineMessageData.Event == "UPDATE_MACHINE" {
 
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
@@ -99,6 +102,7 @@ func ProcessData(msg *kafka.Message) {
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}}
 		utils.UpdateOne(db_name, collection, filter, data_to_update)
+		utils.UpdateOne(feed_db_name, collection, filter, data_to_update, "machines")
 	}
 
 }
