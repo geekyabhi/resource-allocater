@@ -7,6 +7,8 @@ from middlewere.verified_layer import verify_user
 from middlewere.admin_layer import admin_layer
 from middlewere.machine_exist import machine_exists
 from django.utils.decorators import method_decorator
+from utils.exceptions import CustomException
+
 class CommentViewSet(viewsets.ModelViewSet):
     service = CommentService()
 
@@ -29,16 +31,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 
             comment_data = self.service.add_comment({"machine_id":machine_id,"comment_text":comment_text,"uid":uid,"name":name})
             return Response({'data':comment_data,'success':True}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
 
     def get_comments(self, request ,machine_id):
         try:
             comments = self.service.get_comments({"machine_id":machine_id})
             return Response({'success':True,'data':comments}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
 
     @method_decorator(auth_layer)
@@ -52,5 +54,5 @@ class CommentViewSet(viewsets.ModelViewSet):
 
             self.service.remove_comment(data_json)
             return Response({'success':True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(e,status=status.HTTP_400_BAD_REQUEST)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)

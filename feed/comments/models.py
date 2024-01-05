@@ -1,6 +1,7 @@
 from django_cassandra_engine.models import DjangoCassandraModel
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.query import DoesNotExist
+from utils.exceptions import CustomException
 
 class Comments(DjangoCassandraModel):
     __keyspace__ = "user_feed"
@@ -26,8 +27,8 @@ class Comments(DjangoCassandraModel):
                 created_at=created_at
             )
             return cls.comment_to_dict(comment)
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
         
     
     @classmethod
@@ -38,8 +39,8 @@ class Comments(DjangoCassandraModel):
             else :
                 comments = cls.objects.filter(machine_id=machine_id).limit(100) 
             return [cls.comment_to_dict(comment) for comment in comments]
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
     @classmethod
     def remove_comment(cls, machine_id, comment_id):
@@ -47,8 +48,8 @@ class Comments(DjangoCassandraModel):
             comment = cls.objects.get(machine_id=machine_id, comment_id=comment_id)
             comment.delete()
             return cls.comment_to_dict(comment)
-        except DoesNotExist as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
     @staticmethod
     def comment_to_dict(comment):
