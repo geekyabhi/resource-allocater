@@ -1,6 +1,7 @@
 from confluent_kafka import Producer
 from confluent_kafka.serialization import StringSerializer
 from allocater.env_config import ConfigUtil
+from .exceptions import CustomException
 
 configuration = ConfigUtil().get_config_data()
 
@@ -16,18 +17,24 @@ class KafkaProducerHandler:
             "sasl.mechanisms": "SCRAM-SHA-512",
             "sasl.username": self.sasl_username,
             "sasl.password": self.sasl_password,
-            'security.protocol': 'SASL_SSL'
+            "security.protocol": "SASL_SSL",
         }
 
         self.producer = Producer(self.producer_config)
 
-    def produce_message(self, topic, message ,key=None):
+    def __del__(self):
+        self.close_producer()
+
+    def produce_message(self, topic, message, key=None):
         try:
             self.producer.produce(topic, key=key, value=message)
             self.producer.flush()
             print(f"JSON Message produced to Kafka topic '{topic}': {message}")
-        except Exception as e:
-            print(f"Failed to produce JSON message to Kafka: {e}")
+        except CustomException as e:
+            raise CustomException(
+                f"Failed to produce JSON message to Kafka: {e}",
+                status_code=e.status_code,
+            )
 
     def close_producer(self):
         self.producer.flush()

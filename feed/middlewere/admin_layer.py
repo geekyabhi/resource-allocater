@@ -1,11 +1,12 @@
-from django.http import JsonResponse
+from utils.exceptions import CustomException
+
 
 def admin_layer(view_func):
     def _wrapped_view(request, *args, **kwargs):
         user = request.user
-        if user and user.get('admin',False):
+        if user and user.get("admin", False):
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({"error": "User is not admin."}, status=401)
+            raise CustomException("User is not admin", status_code=401)
 
     return _wrapped_view

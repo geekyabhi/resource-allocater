@@ -1,6 +1,7 @@
 from django_cassandra_engine.models import DjangoCassandraModel
-from cassandra.cqlengine import columns 
+from cassandra.cqlengine import columns
 from utils.exceptions import CustomException
+
 
 class Likes(DjangoCassandraModel):
     __keyspace__ = "user_feed"
@@ -12,9 +13,7 @@ class Likes(DjangoCassandraModel):
     created_at = columns.DateTime()
 
     class Meta:
-        get_pk_field = 'machine_id'
-
-    
+        get_pk_field = "machine_id"
 
     @classmethod
     def add_like(cls, machine_id, uid, like_id, status, name, created_at):
@@ -25,28 +24,27 @@ class Likes(DjangoCassandraModel):
                 like_id=like_id,
                 status=status,
                 name=name,
-                created_at=created_at
+                created_at=created_at,
             )
             return cls.like_to_dict(like)
         except CustomException as e:
-            raise CustomException(e,status_code=e.status_code)
-        
-    
+            raise CustomException(e, status_code=e.status_code)
+
     @classmethod
-    def get_count(cls, machine_id ,status):
+    def get_count(cls, machine_id, status):
         try:
-            count = cls.objects.filter(machine_id=machine_id,status=status).count()
+            count = cls.objects.filter(machine_id=machine_id, status=status).count()
             return count
         except CustomException as e:
-            raise CustomException(e,status_code=e.status_code)
+            raise CustomException(e, status_code=e.status_code)
 
     @staticmethod
     def like_to_dict(like):
         return {
-            'machine_id': like.machine_id,
-            'uid': like.uid,
-            'like_id': like.like_id,
-            'status':like.status,
-            'name': like.name,
-            'created_at': like.created_at
+            "machine_id": like.machine_id,
+            "uid": like.uid,
+            "like_id": like.like_id,
+            "status": like.status,
+            "name": like.name,
+            "created_at": like.created_at,
         }
