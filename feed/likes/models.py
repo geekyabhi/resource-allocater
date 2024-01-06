@@ -1,6 +1,6 @@
 from django_cassandra_engine.models import DjangoCassandraModel
 from cassandra.cqlengine import columns 
-from cassandra.cqlengine.query import DoesNotExist
+from utils.exceptions import CustomException
 
 class Likes(DjangoCassandraModel):
     __keyspace__ = "user_feed"
@@ -28,8 +28,8 @@ class Likes(DjangoCassandraModel):
                 created_at=created_at
             )
             return cls.like_to_dict(like)
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
         
     
     @classmethod
@@ -37,8 +37,8 @@ class Likes(DjangoCassandraModel):
         try:
             count = cls.objects.filter(machine_id=machine_id,status=status).count()
             return count
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
     @staticmethod
     def like_to_dict(like):

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 import json
 
 from .service import LikeService
-
+from utils.exceptions import CustomException
 from middlewere.auth_layer import auth_layer
 from middlewere.verified_layer import verify_user
 from middlewere.machine_exist import machine_exists
@@ -29,8 +29,8 @@ class LikeViewSet(viewsets.ModelViewSet):
 
             like_data = self.service.add_like({"machine_id":machine_id,"status":like_status,"uid":uid,"name":name})
             return Response({'data':like_data,'success':True}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
 
 
     def get_likes(self, request ,machine_id):
@@ -38,5 +38,5 @@ class LikeViewSet(viewsets.ModelViewSet):
             likes = self.service.get_count({"machine_id":machine_id,"status":True})
             dislikes = self.service.get_count({"machine_id":machine_id,"status":False})
             return Response({'success':True,'data':{"likes":likes,"dislikes":dislikes}}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)

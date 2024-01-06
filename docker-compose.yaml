@@ -29,12 +29,8 @@ services:
         image: cassandra:latest
         environment:
             - CASSANDRA_CLUSTER_NAME=my_cluster
-        # volumes:
-        #     - ./cassandra-init-script.cql:/docker-entrypoint-initdb.d/init.cql
-        # command:
-        #     - sh
-        #     - -c
-        #     - "chown cassandra:cassandra /docker-entrypoint-initdb.d/init.cql && exec docker-entrypoint.sh cassandra -f"
+        volumes:
+            - ./cassandra-init-script.cql:/docker-entrypoint-initdb.d/init.cql
         ports:
             - "9042:9042"
         container_name: csfeed
@@ -48,4 +44,23 @@ services:
         container_name: feed
         depends_on:
             - cassandra
+        restart: always
+
+    msalc:
+        image: mysql:latest
+        container_name: msalc
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: Abhinav@1712
+        restart: always
+    user:
+        build:
+            context: ./user
+            dockerfile: Dockerfile
+        ports:
+            - "5001:5001"
+        container_name: user
+        depends_on:
+            - msalc
         restart: always

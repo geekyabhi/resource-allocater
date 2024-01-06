@@ -1,6 +1,7 @@
 from .models import Likes
 from datetime import datetime
 import uuid
+from utils.exceptions import CustomException
 
 class LikeService:
     def __init__(self) -> None:
@@ -14,12 +15,12 @@ class LikeService:
             data['created_at'] = created_at
             like_data = self.like_model.add_like(**data)
             return like_data
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)
         
     def get_count(self,data):
         try:
             cnt = self.like_model.get_count(**data)
             return cnt
-        except Exception as e:
-            raise Exception(e)
+        except CustomException as e:
+            raise CustomException(e,status_code=e.status_code)

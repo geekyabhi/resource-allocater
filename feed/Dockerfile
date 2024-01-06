@@ -10,4 +10,4 @@ EXPOSE 5004
 
 ENV PORT 5004
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:5004"]
+CMD ["sh", "-c", "sleep 120 && python manage.py sync_cassandra && python manage.py runserver 0.0.0.0:5004"]

@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from feed.env_config import ConfigUtil
+from retrying import retry
+from cassandra.cluster import Cluster
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 configuration = ConfigUtil().get_config_data()
@@ -78,12 +81,28 @@ WSGI_APPLICATION = 'feed.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+@retry(
+    wait_fixed=30000,  # wait for 30 seconds between retries
+    stop_max_attempt_number=5,  # retry 5 times
+)
+def connect_to_cassandra():
+    try:
+        cluster = Cluster(['cassandra-container'])
+        session = cluster.connect('your_keyspace')
+        return session
+    except Exception as e:
+        print(f"Error connecting to Cassandra: {e}")
+        raise
+
 DATABASES = {
     'default': {
         'ENGINE': 'django_cassandra_engine',
         'NAME': configuration.get('CASSANDRA_KEY_SPACE'),
         'TEST_NAME': configuration.get('CASSANDRA_TEST_KEY_SPACE'),  # Choose a suitable name for your test keyspace
         'HOST': configuration.get('CASSANDRA_HOST'),
+        'SESSION_FACTORY_KWARGS': {
+            'session': connect_to_cassandra,
+        },
     },
 }
 
