@@ -10,7 +10,15 @@ restart_allocation = MachineAllocationViewSet.as_view({"put": "restart_allocatio
 urlpatterns = [
     path("create-allocation/", create_machine, name="create-allocation"),
     path("get-allocation/", get_allocation, name="get-allocation"),
-    path("remove-allocation/<str:container_id>", remove_allocation, name="remove-allocation"),
-    path("restart-allocation/<str:container_id>", restart_allocation, name="restart-allocation"),
+    path(
+        "remove-allocation/<str:container_id>",
+        remove_allocation,
+        name="remove-allocation",
+    ),
+    path(
+        "restart-allocation/<str:container_id>",
+        restart_allocation,
+        name="restart-allocation",
+    ),
     path("stop-allocation/<str:container_id>", stop_allocation, name="stop-allocation"),
 ]

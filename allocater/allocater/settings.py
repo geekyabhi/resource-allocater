@@ -12,8 +12,8 @@ DATABASES = {
         "PASSWORD": configuration.get("DB_PASSWORD"),
         "HOST": configuration.get("DB_HOST"),
         "PORT": configuration.get("DB_PORT", "3307"),  # Default MySQL port is 3306
-        'OPTIONS': {
-            'unix_socket': '/var/run/mysqld/mysqld.sock',  # Update with the correct path
+        "OPTIONS": {
+            "unix_socket": "/var/run/mysqld/mysqld.sock",  # Update with the correct path
         },
     }
 }
@@ -35,11 +35,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "allocate_machine.apps.AllocateMachineConfig",
-    "users.apps.UsersConfig"
+    "users.apps.UsersConfig",
 ]
 
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -49,8 +49,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "users",
-    # 'middlewere.auth_layer.jwt_auth_required',  # Add the function path to your middleware
+    "middlewere.error_handler.ErrorHandlerMiddleware",
 ]
 
 ROOT_URLCONF = "allocater.urls"

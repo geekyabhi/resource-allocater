@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 class ConfigUtil:
     def __init__(self) -> None:
@@ -21,5 +23,5 @@ class ConfigUtil:
         ]
 
     def get_config_data(self):
-        config_dict = {key : os.getenv(key) for key in self.config_keys}
+        config_dict = {key: os.getenv(key) for key in self.config_keys}
         return config_dict

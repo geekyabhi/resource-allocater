@@ -5,8 +5,9 @@ from .service import MachineAllocationService
 from middlewere.auth_layer import auth_layer
 from middlewere.verified_layer import verify_user
 from django.utils.decorators import method_decorator
-from utils.error_handler import ErrorHandler
-from utils.kafka_helpers import KafkaProducerHandler
+from utils.exceptions import CustomException
+
+
 class MachineAllocationViewSet(viewsets.ModelViewSet):
     service = MachineAllocationService()
 
@@ -26,54 +27,48 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             allocated_machine_data = self.service.create_machine(
                 machine_id, starting_date, ending_date, container_name, uid
             )
-            return Response({'data':allocated_machine_data,'success':True}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            # error=ErrorHandler().PickError(e)
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"data": allocated_machine_data, "success": True},
+                status=status.HTTP_201_CREATED,
+            )
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
 
     @method_decorator(auth_layer)
     @method_decorator(verify_user)
-
-    def remove_allocation(self, request ,container_id):
+    def remove_allocation(self, request, container_id):
         try:
             self.service.delete_machine(container_id)
-            return Response({'success':True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
 
     @method_decorator(auth_layer)
     @method_decorator(verify_user)
-
     def get_allocation(self, request):
         try:
             query_data = request.query_params.dict()
             uid = request.user.get("id")
             query_data["uid"] = uid
             data = self.service.get_all_machines(query_data)
-            return Response({'data':data,'success':True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            error=ErrorHandler().PickError(e)
-            return Response(error,status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
 
     @method_decorator(auth_layer)
     @method_decorator(verify_user)
-
-    def stop_allocation(self, request , container_id):
+    def stop_allocation(self, request, container_id):
         try:
             data = self.service.stop_machine(container_id)
-            return Response({'data':data,'success':True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
 
     @method_decorator(auth_layer)
     @method_decorator(verify_user)
-
-    def restart_allocation(self, request , container_id):
+    def restart_allocation(self, request, container_id):
         try:
             data = self.service.start_machine(container_id)
-            return Response({'data':data,'success':True}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":f"{e}"},status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)

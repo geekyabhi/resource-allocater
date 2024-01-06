@@ -1,6 +1,7 @@
-import uuid
 from django.db import models
 from django.forms.models import model_to_dict
+from utils.exceptions import CustomException
+
 
 class UserModel(models.Model):
     id = models.CharField(max_length=255, primary_key=True, null=False)
@@ -22,26 +23,25 @@ class UserModel(models.Model):
         indexes = [
             models.Index(fields=["email"]),
         ]
-        app_label = 'users'
-        db_table = 'user'
+        app_label = "users"
+        db_table = "user"
 
     def to_dict(self):
         return model_to_dict(self)
-    
+
     @classmethod
     def return_meta_fields(cls):
         fields = [key.name for key in cls._meta.get_fields()]
         return fields
 
     @classmethod
-    def get(cls , filters):
+    def get(cls, filters):
         try:
             meta_fields = cls.return_meta_fields()
-            filters = {key:filters[key] for key in filters if key in meta_fields}
+            filters = {key: filters[key] for key in filters if key in meta_fields}
             user_query_set = cls.objects.filter(**filters)
-            if user_query_set.exists() and user_query_set.count()>0:
+            if user_query_set.exists() and user_query_set.count() > 0:
                 return user_query_set.first().to_dict()
             return dict()
-        except Exception as e:
-            raise Exception(e)
-
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
