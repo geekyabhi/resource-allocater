@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "amqplib": "^0.10.3",
-    "ioredis": "^5.3.2",
-    "kafka-node": "^5.0.0"
-  }
-}

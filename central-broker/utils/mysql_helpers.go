@@ -11,6 +11,7 @@ import (
 )
 
 var mysql_pools map[string]*sql.DB
+
 var SQL_db_name_mapping map[string]string
 
 func InitSQLDB(host string, port int, user, password, dbName string) {
