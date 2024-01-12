@@ -17,7 +17,7 @@ type KafkaConsumer struct {
 
 func NewKafkaConsumer(topic string, groupID string) (*KafkaConsumer, error) {
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": brokers,
+		"bootstrap.servers": "localhost:9092",
 		"group.id":          groupID,
 		"auto.offset.reset": "earliest",
 		"security.protocol": "plaintext", // Use "plaintext" for plain text without authentication
@@ -48,7 +48,6 @@ func NewKafkaConsumer(topic string, groupID string) (*KafkaConsumer, error) {
 
 		fmt.Printf("Topic %s created successfully\n", topic)
 	}
-
 	consumer, err := kafka.NewConsumer(config)
 	if err != nil {
 		return nil, fmt.Errorf("error creating kafka consumer: %v", err)

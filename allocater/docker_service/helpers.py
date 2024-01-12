@@ -2,9 +2,9 @@ import docker
 import random
 from utils.exceptions import CustomException
 
-
 class DockerManager:
     def __init__(self) -> None:
+        # self.client = docker.DockerClient(base_url='unix://var/run/docker.sock')
         self.client = docker.from_env()
 
     def start_container(

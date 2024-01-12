@@ -1,17 +1,17 @@
 from pymongo import MongoClient
-from allocater.env_config import ConfigUtil
+from feed.env_config import ConfigUtil
 from .exceptions import CustomException
 
 configuration = ConfigUtil().get_config_data()
 
 
 class MongoDBClient:
-    def __init__(self) -> None:
+    def __init__(self , collection) -> None:
         self.DB_URI = configuration.get("MONGODB_URI")
         self.client = self.get_db_connection()
         self.db_name = configuration.get("MONGODB_NAME")
         self.db = self.client[self.db_name]
-        self.collection = self.db["machines"]
+        self.collection = self.db[collection]
 
     def __del__(self) -> None:
         self.close_db_connection()

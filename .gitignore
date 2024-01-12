@@ -44,3 +44,5 @@ ENV/
 
 # Test databases
 test_db.sqlite3
+migrations/
+db_vol

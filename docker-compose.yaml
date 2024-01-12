@@ -1,66 +1,129 @@
 version: "3"
 services:
-    # zookeeper:
-    #     image: confluentinc/cp-zookeeper:7.0.1
-    #     container_name: zookeeper
-    #     environment:
-    #         ZOOKEEPER_CLIENT_PORT: 2181
-    #         ZOOKEEPER_TICK_TIME: 2000
-    #     volumes:
-    #         - ~/docker_data/zookeeper:/var/lib/zookeeper
+    zookeeper:
+        image: confluentinc/cp-zookeeper:7.0.1
+        container_name: zookeeper
+        restart: always
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+            ZOOKEEPER_TICK_TIME: 2000
+        volumes:
+            - ./db_vol/zookeeper:/var/lib/zookeeper
+        # network_mode: bridge
 
-    # broker:
-    #     image: confluentinc/cp-kafka:7.0.1
-    #     container_name: broker
-    #     ports:
-    #         - "9092:9092"
-    #     depends_on:
-    #         - zookeeper
-    #     environment:
-    #         KAFKA_BROKER_ID: 1
-    #         KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-    #         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-    #         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
-    #         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    #         KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-    #         KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    broker:
+        image: confluentinc/cp-kafka:7.0.1
+        container_name: broker
+        restart: always
+        expose:
+            - 9092
+        ports:
+            - "9092:9092"
+        depends_on:
+            - zookeeper
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        # network_mode: bridge
 
     cassandra:
         image: cassandra:latest
         environment:
             - CASSANDRA_CLUSTER_NAME=my_cluster
         volumes:
-            - ./cassandra-init-script.cql:/docker-entrypoint-initdb.d/init.cql
+            - ./db_vol/csfeed_data:/var/lib/cassandra/data
         ports:
             - "9042:9042"
         container_name: csfeed
-    
-    feed:
-        build:
-            context: ./feed
-            dockerfile: Dockerfile
-        ports:
-            - "5004:5004"
-        container_name: feed
-        depends_on:
-            - cassandra
+        network_mode: bridge
         restart: always
-
+    
     msalc:
         image: mysql:latest
         container_name: msalc
+        expose:
+            - 3308
+        ports:
+            - "3308:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: Abhinav@1712
+            MYSQL_DATABASE: "resourceallocator"
+        restart: always
+        volumes:
+            - ./db_vol/msalc_data:/var/lib/mysql
+        network_mode: bridge
+    
+    msuser:
+        image: mysql:latest
+        container_name: msuser
+        expose:
+            - 3307
         ports:
             - "3307:3306"
         environment:
             MYSQL_ROOT_PASSWORD: Abhinav@1712
+            MYSQL_DATABASE: "resourceuser"
         restart: always
-    user:
-        build:
-            context: ./user
-            dockerfile: Dockerfile
+        volumes:
+            - ./db_vol/msuser_data:/var/lib/mysql
+        network_mode: bridge
+    
+    mnallocation:
+        image: mongo
+        container_name: mnallocation
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: Abhinav1712
         ports:
-            - "5001:5001"
-        container_name: user
-        depends_on:
-            - msalc
-        restart: always
+            - "27019:27017"
+        volumes:
+            - ./db_vol/mnallocation_data:/data/db
+        command: mongod --auth
+        network_mode: bridge
+    
+    mnmachine:
+        image: mongo
+        container_name: mnmachine
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: Abhinav1712
+        ports:
+            - "27018:27017"
+        volumes:
+            - ./db_vol/mnmachine_data:/data/db
+        command: mongod --auth
+        network_mode: bridge
+    
+    mnfeed:
+        image: mongo
+        container_name: mnfeed
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: Abhinav1712
+        ports:
+            - "27020:27017"
+        volumes:
+            - ./db_vol/mnfeed_data:/data/db
+        command: mongod --auth
+        network_mode: bridge
+
+    # allocater:
+    #     build:
+    #         context: ./allocater
+    #         dockerfile: Dockerfile
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     expose:
+    #         - 5003
+    #     ports:
+    #         - "5003:5003"
+    #     container_name: allocater
+    #     depends_on:
+    #         - msalc
+    #     restart: always
+    #     network_mode: bridge

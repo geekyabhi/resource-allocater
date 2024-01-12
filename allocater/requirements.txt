@@ -5,7 +5,7 @@ charset-normalizer==3.3.2
 confluent-kafka==2.3.0
 cryptography==41.0.7
 decouple==0.0.7
-Django==5.0
+Django==4.2.8
 djangorestframework==3.14.0
 dnspython==2.4.2
 docker==7.0.0

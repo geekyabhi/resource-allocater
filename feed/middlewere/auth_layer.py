@@ -2,7 +2,7 @@ import jwt
 from django.http import JsonResponse
 from utils.exceptions import CustomException
 from jwt.exceptions import ExpiredSignatureError, DecodeError, InvalidTokenError
-from allocater.env_config import ConfigUtil
+from feed.env_config import ConfigUtil
 from users.service import UserService
 
 configuration = ConfigUtil().get_config_data()

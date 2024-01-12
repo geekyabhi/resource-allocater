@@ -55,6 +55,7 @@ func initiateAllDB() {
 
 	utils.InitMongoDB(machine_feed_db_uri, machine_feed_db_name)
 	utils.Mongo_db_name_mapping["resource-machine-feed"] = machine_feed_db_name
+	fmt.Println("All DBs connected")
 }
 
 func main() {

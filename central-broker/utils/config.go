@@ -41,13 +41,15 @@ func Load() (*AppConfig, error) {
 		ResourceAllocatorUserUserName: os.Getenv("RESOURCE_ALLOCATOR_USER_USER_NAME"),
 		ResourceAllocatorUserHost:     os.Getenv("RESOURCE_ALLOCATOR_USER_HOST"),
 		ResourceAllocatorUserPassword: os.Getenv("RESOURCE_ALLOCATOR_USER_PASSWORD"),
-		ResourceAllocatorUserPort:     3306,
+		// ResourceAllocatorUserPort:     os.Getenv("RESOURCE_ALLOCATOR_USER_PORT"),
+		ResourceAllocatorUserPort: 3307,
 
 		ResourceAllocatorAllocatorDbName:   os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_DB_NAME"),
 		ResourceAllocatorAllocatorUserName: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_USER_NAME"),
 		ResourceAllocatorAllocatorHost:     os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_HOST"),
 		ResourceAllocatorAllocatorPassword: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PASSWORD"),
-		ResourceAllocatorAllocatorPort:     3307,
+		// ResourceAllocatorAllocatorPort:     os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PORT"),
+		ResourceAllocatorAllocatorPort: 3308,
 
 		ResourceAllocatorMachineDbName: os.Getenv("RESOURCE_ALLOCATOR_MACHINE_DB_NAME"),
 		ResourceAllocatorMachineURI:    os.Getenv("RESOURCE_ALLOCATOR_MACHINE_URI"),
@@ -57,9 +59,6 @@ func Load() (*AppConfig, error) {
 
 		ResourceAllocatorMachineFeedDbName: os.Getenv("RESOURCE_ALLOCATOR_MACHINE_FEED_DB_NAME"),
 		ResourceAllocatorMachineFeedURI:    os.Getenv("RESOURCE_ALLOCATOR_MACHINE_FEED_URI"),
-
-		// KafkaUsername: os.Getenv("KAFKA_USERNAME"),
-		// KafkaPassword: os.Getenv("KAFKA_PASSWORD"),
 	}
 
 	return config, nil
