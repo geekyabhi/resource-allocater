@@ -7,7 +7,7 @@ const MachineSchema = new Schema(
 	{
 		name: { type: String, required: true, unique: true },
 		image_name: { type: String, required: true },
-		default_port: { type: Number },
+		default_port: { type: Number ,required:true},
 		image: { type: String },
 		backGroundImage: { type: String },
 		isactive: { type: Boolean, default: false },

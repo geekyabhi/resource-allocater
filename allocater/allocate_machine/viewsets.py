@@ -18,15 +18,8 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
             raw_data = request.body
             data = raw_data.decode("utf-8")
             data_json = json.loads(data)
-
-            machine_id = data_json.get("machine_id")
-            starting_date = data_json.get("starting_date")
-            ending_date = data_json.get("ending_date")
-            container_name = data_json.get("container_name")
-            uid = request.user.get("id")
-            allocated_machine_data = self.service.create_machine(
-                machine_id, starting_date, ending_date, container_name, uid
-            )
+            data_json["uid"] = request.user.get("id")
+            allocated_machine_data = self.service.create_machine(**data_json)
             return Response(
                 {"data": allocated_machine_data, "success": True},
                 status=status.HTTP_201_CREATED,

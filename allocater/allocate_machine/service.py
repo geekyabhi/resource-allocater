@@ -1,52 +1,68 @@
-from docker_service.helpers import DockerManager
+import json
+from datetime import datetime
+
 from utils.mongodb import MongoDBClient
 from .models import MachineAllocation
 from utils.exceptions import CustomException
-
+from utils.api_communication import send_request
 
 class MachineAllocationService:
     def __init__(self) -> None:
         self.model = MachineAllocation()
-        self.docker = DockerManager()
         self.mongo_client = MongoDBClient()
 
-    def create_machine(
-        self, machine_id, starting_date, ending_date, container_name, uid
-    ):
+    def create_machine(self, **data):
         try:
-            data = self.mongo_client.read({"machine_id": machine_id})
-            image = data.get("image_name")
-            default_port = data.get("default_port")
-            container, mapping_port = self.docker.start_container(
-                image, container_name, default_port
-            )
+            machine_id = data.get('machine_id')
+            image_detail = self.mongo_client.read({"machine_id": machine_id})
+            props = image_detail.get('props')
+            environment = dict()
+
+            for properties in props :
+                if props.get(properties,{}).get('required',False) and properties not in data :
+                    raise CustomException(f"{properties} is a required property for this machine", status_code=400)
+            for key in data :
+                if key in [properties for properties in props ] :
+                    environment[key] = data.get(key)
+            
+            container_config = {
+                "image":image_detail.get('image_name'),
+                "default_port":image_detail.get('default_port'),
+            }
+            if data.get('name') :
+                container_config["container_name"] =  data.get('name')
+            if environment :
+                container_config['environment'] = environment
+
+            response = send_request("http://127.0.0.1:5005/docker/run-container/" , "POST" , json.dumps(container_config))
+            container_details = response.get('data')
+
             allocation_data = {
                 "machine_id": machine_id,
-                "container_id": str(container.short_id),
-                "starting_date": starting_date,
-                "end_date": ending_date,
-                "is_active": True,
+                "container_id": container_details.get('id'),
+                "is_active": container_details.get('status')=='created',
+                "starting_date": datetime.now(),
                 "status": "active",
-                "machine_name": image,
-                "container_name": container.name,
-                "port_used": mapping_port,
-                "uid": uid,
+                "machine_name": container_details.get('image'),
+                "container_name": container_details.get('name'),
+                "port_used": container_details.get('port_used'),
+                "uid": data.get('uid'),
             }
             allocated_machine = self.model.add(allocation_data)
             return allocated_machine
         except CustomException as e:
-            raise CustomException(e)
+            raise CustomException(e,status_code=e.status_code)
 
     def delete_machine(self, container_id):
         try:
-            self.docker.remove_container_by_id(container_id)
+            send_request(f"http://127.0.0.1:5005/docker/remove-container/{container_id}", "DELETE")
             self.model.delet(container_id)
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
 
     def stop_machine(self, container_id):
         try:
-            self.docker.stop_container_by_id(container_id)
+            send_request(f"http://127.0.0.1:5005/docker/stop-container/{container_id}","POST")
             data = self.model.update(container_id, {"status": "stopped"})
             return data
         except CustomException as e:
@@ -54,7 +70,7 @@ class MachineAllocationService:
 
     def start_machine(self, container_id):
         try:
-            self.docker.start_stopped_container(container_id)
+            send_request(f"http://127.0.0.1:5005/docker/start-container/{container_id}","POST")
             data = self.model.update(container_id, {"status": "active"})
             return data
         except CustomException as e:
