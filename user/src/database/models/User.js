@@ -4,7 +4,7 @@ class UserModel {
 	constructor() {
 		this.db = DB.connection;
 
-		this.schema = DB.connection.define(
+		this.schema = DB?.connection?.define(
 			"users",
 			{
 				id: {

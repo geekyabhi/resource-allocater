@@ -10,7 +10,4 @@ EXPOSE 5003
 
 ENV PORT 5003
 
-RUN apt-get update && apt-get install -y docker.io
-
-CMD ["sh", "-c", "sleep 5 && python manage.py runserver 5003"]
-
+CMD ["sh", "-c", "sleep 2 && python manage.py makemigrations users && python manage.py makemigrations allocate_machine && python manage.py migrate && python manage.py runserver 5003"]

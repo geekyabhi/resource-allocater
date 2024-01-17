@@ -9,7 +9,6 @@ services:
             ZOOKEEPER_TICK_TIME: 2000
         volumes:
             - ./db_vol/zookeeper:/var/lib/zookeeper
-        # network_mode: bridge
 
     broker:
         image: confluentinc/cp-kafka:7.0.1
@@ -29,9 +28,8 @@ services:
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-        # network_mode: bridge
 
-    cassandra:
+    csfeed:
         image: cassandra:latest
         environment:
             - CASSANDRA_CLUSTER_NAME=my_cluster
@@ -40,7 +38,6 @@ services:
         ports:
             - "9042:9042"
         container_name: csfeed
-        network_mode: bridge
         restart: always
     
     msalc:
@@ -56,7 +53,6 @@ services:
         restart: always
         volumes:
             - ./db_vol/msalc_data:/var/lib/mysql
-        network_mode: bridge
     
     msuser:
         image: mysql:latest
@@ -71,7 +67,6 @@ services:
         restart: always
         volumes:
             - ./db_vol/msuser_data:/var/lib/mysql
-        network_mode: bridge
     
     mnallocation:
         image: mongo
@@ -84,7 +79,6 @@ services:
         volumes:
             - ./db_vol/mnallocation_data:/data/db
         command: mongod --auth
-        network_mode: bridge
     
     mnmachine:
         image: mongo
@@ -97,7 +91,6 @@ services:
         volumes:
             - ./db_vol/mnmachine_data:/data/db
         command: mongod --auth
-        network_mode: bridge
     
     mnfeed:
         image: mongo
@@ -110,20 +103,70 @@ services:
         volumes:
             - ./db_vol/mnfeed_data:/data/db
         command: mongod --auth
-        network_mode: bridge
 
-    # allocater:
-    #     build:
-    #         context: ./allocater
-    #         dockerfile: Dockerfile
-    #     volumes:
-    #         - /var/run/docker.sock:/var/run/docker.sock
-    #     expose:
-    #         - 5003
-    #     ports:
-    #         - "5003:5003"
-    #     container_name: allocater
-    #     depends_on:
-    #         - msalc
-    #     restart: always
-    #     network_mode: bridge
+    allocater:
+        build:
+            context: ./allocater
+            dockerfile: Dockerfile
+        expose:
+            - 5003
+        ports:
+            - "5003:5003"
+        container_name: allocater
+        depends_on:
+            - msalc
+            - mnallocation
+        restart: always
+    
+    feed:
+        build:
+            context: ./feed
+            dockerfile: Dockerfile
+        expose:
+            - 5004
+        ports:
+            - "5004:5004"
+        container_name: feed
+        depends_on:
+            - csfeed
+            - mnfeed
+        restart: always
+
+    user:
+        build: 
+            context: ./user
+            dockerfile: Dockerfile
+        expose:
+            - 5001
+        ports:
+            - "5001:5001"
+        container_name: user
+        depends_on:
+            - msuser
+        restart: always
+    
+    machine:
+        build: 
+            context: ./machine
+            dockerfile: Dockerfile
+        expose:
+            - 5002
+        ports:
+            - "5002:5002"
+        container_name: machine
+        depends_on:
+            - mnmachine
+        restart: always
+    
+    central:
+        build: 
+            context: ./central-broker
+            dockerfile: Dockerfile
+        container_name: central
+        depends_on:
+            - mnmachine
+            - mnfeed
+            - mnallocation
+            - msalc
+            - msuser
+        restart: always

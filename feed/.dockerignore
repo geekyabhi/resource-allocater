@@ -1,3 +1,43 @@
 ./fenv
 .dockerignore
 Dockerfile
+
+./env
+.dockerignore
+Dockerfile
+*/migrations
+
+# Ignore Python bytecode files
+__pycache__
+
+# Ignore database files
+db.sqlite3
+
+# Ignore virtual environment files
+venv
+
+# Ignore local development settings
+*.local
+
+# Ignore Docker-related files
+Dockerfile
+docker-compose.yml
+
+# Ignore version control files
+.git
+.gitignore
+
+# Ignore development and editor files
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+*.pot
+*.pyc
+
+# Ignore test files
+*.pyc
+*.pyo
+__pycache__

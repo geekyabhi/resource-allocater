@@ -11,7 +11,7 @@ DATABASES = {
         "USER": configuration.get("DB_USER"),
         "PASSWORD": configuration.get("DB_PASSWORD"),
         "HOST": configuration.get("DB_HOST"),
-        "PORT": configuration.get("DB_PORT", "3307"),  # Default MySQL port is 3306
+        "PORT": configuration.get("DB_PORT", "3306"),  # Default MySQL port is 3306
         "OPTIONS": {
             "unix_socket": "/var/run/mysqld/mysqld.sock",  # Update with the correct path
         },
