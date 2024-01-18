@@ -12,6 +12,8 @@ const {
 	VerifyOTPUtil,
 	CanSendOTP,
 	GenerateOTP,
+	CreateHashFromFilters,
+	CreateHashFromString,
 } = require("../utils/functions");
 
 const { APIError, BadRequestError, AppError } = require("../utils/error/app-errors");
@@ -153,26 +155,50 @@ class UserService {
 
 	async FindAllUsers(filters) {
 		try {
-			// filters["verified"] = 1;
+			const hash = await CreateHashFromFilters(filters)
+			const cache_users = await this.redis.RedisGET(hash)
+			if(cache_users){
+				return {
+					users:cache_users,
+					cache:true
+				}
+			}
 			const raw_users = await this.repository.FindUsers(filters);
 			const users = raw_users.map((us) => {
 				delete us["password"];
 				delete us["salt"];
 				return us;
 			});
-			// console.log(users);
-			return users;
+			await this.redis.RedisSET(hash,users,100)
+			return {
+				users,
+				cache:false
+			} 
+
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
 	}
 	async FindOneUser(filters) {
 		try {
+			const id = filters.id
+			const hash = CreateHashFromString(id)
+			const cache_user = await this.redis.RedisGET(hash)
+			if(cache_user){
+				return{
+					user:cache_user,
+					cache:true
+				}
+			}
 			const raw_user = await this.repository.FindOneUser(filters);
 			if(!raw_user) return null
 			delete raw_user["salt"];
 			delete raw_user["password"];
-			return raw_user;
+			await this.redis.RedisSET(hash,raw_user,100)
+			return {
+				user:raw_user,
+				cache:false
+			}
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
@@ -228,8 +254,9 @@ class UserService {
 				USER_DATA_TOPIC,
 				JSON.stringify(publish_data)
 			);
-			
-			return user;
+			const hash = CreateHashFromString(id)
+			await this.redis.RedisDEL(hash)
+			return {user};
 			
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
@@ -238,6 +265,7 @@ class UserService {
 
 	async DeleteUser(id) {
 		try {
+			
 			const data = await this.repository.DeleteUser(id);
 			if (data?.success) {
 				const publish_data = {
@@ -251,7 +279,9 @@ class UserService {
 					JSON.stringify(publish_data)
 				);
 			}
-			return data;
+			const hash = CreateHashFromString(id)
+			await this.redis.RedisDEL(hash)
+			return {data};
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
@@ -278,7 +308,7 @@ class UserService {
 	}
 	async VerifyOTP(email,otp){
 		try {
-			const user = await this.FindOneUser({ email });
+			const {user} = await this.FindOneUser({ email });
 			const verified = await VerifyOTPUtil(this.redis,otp,email)
 			if(!verified){
 				return {
@@ -290,8 +320,8 @@ class UserService {
 					"message":"No such user"
 				}
 			}
-			const updatedUser = await this.UpdateUser(user.id,{"verified":true})
-			return updatedUser
+			const {user:updatedUser} = await this.UpdateUser(user.id,{"verified":true})
+			return {updatedUser}
 		} catch (e) {
 			throw new APIError(e,e.statusCode)
 		}

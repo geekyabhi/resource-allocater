@@ -13,6 +13,7 @@
 	"dependencies": {
 		"amqplib": "^0.10.3",
 		"bcrypt": "^5.1.0",
+		"bee-queue": "^1.7.1",
 		"color": "^4.2.3",
 		"colors": "^1.4.0",
 		"cors": "^2.8.5",

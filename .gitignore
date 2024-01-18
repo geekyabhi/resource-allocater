@@ -17,6 +17,8 @@ build/
 # Virtual environments
 venv/
 env/
+denv/
+aenv/
 */fenv/
 ENV/
 

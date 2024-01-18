@@ -26,7 +26,9 @@ SECRET_KEY = '%!ehjsom+6+ektp$(rjie#^f!f2hhs!j%f!up_y*#68hdltht0'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "host.docker.internal"
+    "host.docker.internal",
+    "dock",
+    "localhost"
 ]
 
 

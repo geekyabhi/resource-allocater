@@ -2,10 +2,10 @@ import docker
 import random 
 import json
 from utils.exceptions import CustomException
-
+docker_host = 'unix://var/run/docker.sock'
 class DockerService:
     def __init__(self) -> None:
-        self.client = docker.from_env()
+        self.client = docker.DockerClient(base_url=docker_host)
     
     def run_container(self , **data):
         try:

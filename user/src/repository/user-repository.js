@@ -1,15 +1,15 @@
 const connectDB = require("../database/connect");
 const { UserModel } = require("../database/models");
-
+const {RedisUtil} = require("../utils/cache")
 const {
 	APIError,
-	BadRequestError,
 	STATUS_CODES,
 } = require("../utils/error/app-errors");
 
 class UserRepository {
 	constructor() {
 		this.User = new UserModel().schema;
+		this.rds = new RedisUtil()
 	}
 
 	async AddUser({
@@ -54,7 +54,7 @@ class UserRepository {
 			const users = await this.User.findAll({ where: filters });
 			return users.map((us) => {
 				return us.dataValues;
-			});
+			})
 		} catch (e) {
 			throw new APIError(
 				"API Error",

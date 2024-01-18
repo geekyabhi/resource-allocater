@@ -104,6 +104,14 @@ services:
             - ./db_vol/mnfeed_data:/data/db
         command: mongod --auth
 
+    rsuser:
+        image: redis:latest
+        container_name: rsuser
+        expose:
+            - 6380
+        ports:
+            - "6380:6379"
+
     allocater:
         build:
             context: ./allocater
@@ -157,6 +165,19 @@ services:
         depends_on:
             - mnmachine
         restart: always
+    
+    dock:
+        build: 
+            context: ./dock
+            dockerfile: Dockerfile
+        expose:
+            - 5005
+        ports:
+            - "5005:5005"
+        container_name: dock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        restart: always 
     
     # central:
     #     build: 

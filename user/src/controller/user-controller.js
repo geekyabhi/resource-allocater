@@ -71,19 +71,12 @@ class UserController {
 			
 			const data = await this.service.VerifyOTP(email,otp)
 			
-			const filter_data = {
-				sms_notification: data.sms_notification,
-				email_notification: data.email_notification,
-				phone: data.phone_number,
-				first_name: data.first_name,
-				last_name: data.last_name,
-				email: data.email,
-				id: data.id,
-			};
+			delete data['password']
+			delete data['salt']
 
 			return res.json({
 				success: true,
-				filter_data
+				data
 			});
 		} catch (e) {
 			next(e);
