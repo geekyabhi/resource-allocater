@@ -42,14 +42,14 @@ func Load() (*AppConfig, error) {
 		ResourceAllocatorUserHost:     os.Getenv("RESOURCE_ALLOCATOR_USER_HOST"),
 		ResourceAllocatorUserPassword: os.Getenv("RESOURCE_ALLOCATOR_USER_PASSWORD"),
 		// ResourceAllocatorUserPort:     os.Getenv("RESOURCE_ALLOCATOR_USER_PORT"),
-		ResourceAllocatorUserPort: 3306,
+		ResourceAllocatorUserPort: 3307,
 
 		ResourceAllocatorAllocatorDbName:   os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_DB_NAME"),
 		ResourceAllocatorAllocatorUserName: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_USER_NAME"),
 		ResourceAllocatorAllocatorHost:     os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_HOST"),
 		ResourceAllocatorAllocatorPassword: os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PASSWORD"),
 		// ResourceAllocatorAllocatorPort:     os.Getenv("RESOURCE_ALLOCATOR_ALLOCATOR_PORT"),
-		ResourceAllocatorAllocatorPort: 3306,
+		ResourceAllocatorAllocatorPort: 3308,
 
 		ResourceAllocatorMachineDbName: os.Getenv("RESOURCE_ALLOCATOR_MACHINE_DB_NAME"),
 		ResourceAllocatorMachineURI:    os.Getenv("RESOURCE_ALLOCATOR_MACHINE_URI"),

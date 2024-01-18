@@ -10,4 +10,4 @@ EXPOSE 5003
 
 ENV PORT 5003
 
-CMD ["sh", "-c", "sleep 2 && python manage.py makemigrations users && python manage.py makemigrations allocate_machine && python manage.py migrate && python manage.py runserver 5003"]
+CMD ["sh", "-c", "sleep 20 && python manage.py makemigrations users && python manage.py makemigrations allocate_machine && python manage.py migrate && python manage.py runserver 0.0.0.0:5003"]

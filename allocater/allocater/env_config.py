@@ -20,6 +20,8 @@ class ConfigUtil:
             "KAFKA_BROKER_URI",
             "KAFKA_USER_NAME",
             "KAFKA_PASSWORD",
+            "DOCK_HOST",
+            "DOCK_PORT"
         ]
 
     def get_config_data(self):

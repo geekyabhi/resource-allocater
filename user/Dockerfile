@@ -10,5 +10,7 @@ COPY . .
 
 EXPOSE 5001
 
+RUN sleep 10
+
 CMD ["npm","start"]
 

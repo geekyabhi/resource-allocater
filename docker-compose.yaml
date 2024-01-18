@@ -158,15 +158,15 @@ services:
             - mnmachine
         restart: always
     
-    central:
-        build: 
-            context: ./central-broker
-            dockerfile: Dockerfile
-        container_name: central
-        depends_on:
-            - mnmachine
-            - mnfeed
-            - mnallocation
-            - msalc
-            - msuser
-        restart: always
+    # central:
+    #     build: 
+    #         context: ./central-broker
+    #         dockerfile: Dockerfile
+    #     container_name: central
+    #     depends_on:
+    #         - mnmachine
+    #         - mnfeed
+    #         - mnallocation
+    #         - msalc
+    #         - msuser
+    #     restart: always
