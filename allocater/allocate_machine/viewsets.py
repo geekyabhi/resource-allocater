@@ -31,8 +31,8 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
     @method_decorator(verify_user)
     def remove_allocation(self, request, container_id):
         try:
-            self.service.delete_machine(container_id)
-            return Response({"success": True}, status=status.HTTP_200_OK)
+            data = self.service.delete_machine(container_id)
+            return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
 
@@ -62,6 +62,15 @@ class MachineAllocationViewSet(viewsets.ModelViewSet):
     def restart_allocation(self, request, container_id):
         try:
             data = self.service.start_machine(container_id)
+            return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
+    
+    @method_decorator(auth_layer)
+    @method_decorator(verify_user)
+    def inspect_allocation(self,request, container_id):
+        try:
+            data = self.service.inspect_machine(container_id)
             return Response({"data": data, "success": True}, status=status.HTTP_200_OK)
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)

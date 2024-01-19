@@ -21,7 +21,9 @@ class ConfigUtil:
             "KAFKA_USER_NAME",
             "KAFKA_PASSWORD",
             "DOCK_HOST",
-            "DOCK_PORT"
+            "DOCK_PORT",
+            "DOCK_GRPC_HOST",
+            "DOCK_GRPC_PORT"
         ]
 
     def get_config_data(self):

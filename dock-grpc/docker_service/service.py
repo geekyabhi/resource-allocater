@@ -59,7 +59,7 @@ class DockerService:
             return True
         except docker.errors.NotFound as e:
             raise CustomException(f"Container '{container_id}' not found: {str(e)}")
-        except CustomException as e:
+        except Exception as e:
             raise CustomException(f"Error stopping container '{container_id}': {str(e)}")
 
     def inspect_container_by_id(self, container_id):
@@ -76,9 +76,7 @@ class DockerService:
             container = self.client.containers.get(container_id)
             container.remove()
             return True
-        except docker.errors.NotFound as e:
-            raise CustomException(f"Container '{container_id}' not found: {str(e)}")
-        except CustomException as e:
+        except Exception as e:
             raise CustomException(f"Error removing container '{container_id}': {str(e)}")
 
     def stream_container_logs_by_id(self, container_id):

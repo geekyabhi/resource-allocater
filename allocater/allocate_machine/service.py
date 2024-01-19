@@ -2,20 +2,15 @@ import json
 from datetime import datetime
 
 from utils.mongodb import MongoDBClient
-from allocater.env_config import ConfigUtil
 from .models import MachineAllocation
 from utils.exceptions import CustomException
-from utils.api_communication import send_request
-
-configuration = ConfigUtil().get_config_data()
-dock_host = configuration.get("DOCK_HOST")
-dock_port = configuration.get("DOCK_PORT")
+from docker_service_communication.grpc_communication import DockerService
 
 class MachineAllocationService:
     def __init__(self) -> None:
         self.model = MachineAllocation()
         self.mongo_client = MongoDBClient()
-        self.dock_host = f"{dock_host}:{dock_port}"
+        self.docker_service = DockerService()
 
     def create_machine(self, **data):
         try:
@@ -23,7 +18,6 @@ class MachineAllocationService:
             image_detail = self.mongo_client.read({"machine_id": machine_id})
             props = image_detail.get('props')
             environment = dict()
-
             for properties in props :
                 if props.get(properties,{}).get('required',False) and properties not in data :
                     raise CustomException(f"{properties} is a required property for this machine", status_code=400)
@@ -39,9 +33,7 @@ class MachineAllocationService:
                 container_config["container_name"] =  data.get('name')
             if environment :
                 container_config['environment'] = environment
-
-            response = send_request(f"{self.dock_host}/docker/run-container/" , "POST" , json.dumps(container_config))
-            container_details = response.get('data')
+            container_details = self.docker_service.run_container(container_config)
 
             allocation_data = {
                 "machine_id": machine_id,
@@ -61,24 +53,30 @@ class MachineAllocationService:
 
     def delete_machine(self, container_id):
         try:
-            send_request(f"{self.dock_host}/docker/remove-container/{container_id}", "DELETE")
-            self.model.delet(container_id)
+            res = self.docker_service.remove_container(container_id)
+            if not res.get('error'):
+                self.model.delet(container_id)
+            return res
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
 
     def stop_machine(self, container_id):
         try:
-            send_request(f"{self.dock_host}/docker/stop-container/{container_id}","POST")
-            data = self.model.update(container_id, {"status": "stopped"})
-            return data
+            res = self.docker_service.stop_container(container_id)
+            if not res.get('error'):
+                data = self.model.update(container_id, {"status": "stopped"})
+                return data
+            return res
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
 
     def start_machine(self, container_id):
         try:
-            send_request(f"{self.dock_host}/docker/start-container/{container_id}","POST")
-            data = self.model.update(container_id, {"status": "active"})
-            return data
+            res = self.docker_service.start_container(container_id)
+            if not res.get('error'):
+                data = self.model.update(container_id, {"status": "active"})
+                return data
+            return res
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
 
@@ -93,5 +91,12 @@ class MachineAllocationService:
         try:
             data = self.model.get_many(filters)
             return data
+        except CustomException as e:
+            raise CustomException(e, status_code=e.status_code)
+
+    def inspect_machine(self , container_id):
+        try:
+            res = self.docker_service.inspect_container(container_id)
+            return res
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)

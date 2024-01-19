@@ -48,3 +48,5 @@ ENV/
 test_db.sqlite3
 migrations/
 db_vol
+
+*_pb2*

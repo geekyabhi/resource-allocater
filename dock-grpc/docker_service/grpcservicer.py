@@ -17,7 +17,7 @@ class DockerServiceServicer(dock_pb2_grpc.DockerServiceServicer):
             response.data = json.dumps(container_response)        
         except CustomException as e:
             error = {
-                error:str(e)
+                'error':str(e)
             }
             response.data = json.dumps(error)
         return response
@@ -33,7 +33,7 @@ class DockerServiceServicer(dock_pb2_grpc.DockerServiceServicer):
             response.data = json.dumps(container_response)
         except CustomException as e:
             error = {
-                error:str(e)
+                'error':str(e)
             }
             response.data = json.dumps(error)
         return response
@@ -49,7 +49,7 @@ class DockerServiceServicer(dock_pb2_grpc.DockerServiceServicer):
             response.data = json.dumps(container_response)
         except CustomException as e:
             error = {
-                error:str(e)
+                'error':str(e)
             }
             response.data = json.dumps(error)
         return response
@@ -65,7 +65,7 @@ class DockerServiceServicer(dock_pb2_grpc.DockerServiceServicer):
             response.data = json.dumps(container_response)
         except CustomException as e:
             error = {
-                error:str(e)
+                'error':str(e)
             }
             response.data = json.dumps(error)
         return response
@@ -78,7 +78,7 @@ class DockerServiceServicer(dock_pb2_grpc.DockerServiceServicer):
             response.data = json.dumps(container_response)
         except CustomException as e:
             error = {
-                error:str(e)
+                'error':str(e)
             }
             response.data = json.dumps(error)
         return response

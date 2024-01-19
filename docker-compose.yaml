@@ -124,6 +124,7 @@ services:
         depends_on:
             - msalc
             - mnallocation
+            # - dockgrpc
         restart: always
     
     feed:
@@ -175,6 +176,19 @@ services:
         ports:
             - "5005:5005"
         container_name: dock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        restart: always 
+    
+    dockgrpc:
+        build: 
+            context: ./dock-grpc
+            dockerfile: Dockerfile
+        expose:
+            - 50051
+        ports:
+            - "50051:50051"
+        container_name: dockgrpc
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         restart: always 

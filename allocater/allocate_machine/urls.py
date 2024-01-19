@@ -6,6 +6,7 @@ get_allocation = MachineAllocationViewSet.as_view({"get": "get_allocation"})
 remove_allocation = MachineAllocationViewSet.as_view({"delete": "remove_allocation"})
 stop_allocation = MachineAllocationViewSet.as_view({"put": "stop_allocation"})
 restart_allocation = MachineAllocationViewSet.as_view({"put": "restart_allocation"})
+inspect_allocation = MachineAllocationViewSet.as_view({"get": "inspect_allocation"})
 
 urlpatterns = [
     path("create-allocation/", create_machine, name="create-allocation"),
@@ -21,4 +22,5 @@ urlpatterns = [
         name="restart-allocation",
     ),
     path("stop-allocation/<str:container_id>", stop_allocation, name="stop-allocation"),
+    path("inspect-allocation/<str:container_id>", inspect_allocation, name="inspect-allocation"),
 ]
