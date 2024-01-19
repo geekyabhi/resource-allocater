@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+message ContainerIDRequest {
+    string container_id = 1;
+}
+
+message BoolResponse {
+    bool done = 1;
+}
+
+message ContainerDataRequest {
+    string data = 1;
+}
+
+message ContainerDataResponse {
+    string data = 1;
+}
+
+messgae Log{
+    string log_line = 1;
+}
+
+service DockerService {
+    rpc RunContainer(ContainerDataRequest) returns (ContainerDataResponse) {}
+    rpc StartContainer(ContainerIDRequest) returns (ContainerDataResponse) {}
+    rpc StopContainer(ContainerIDRequest) returns (ContainerDataResponse) {}
+    rpc InspectContainer(ContainerIDRequest) returns (ContainerDataResponse) {}
+    rpc RemoveContainer(ContainerIDRequest) returns (ContainerDataResponse) {}
+    rpc StreamContainerLogs(ContainerIDRequest) return (stream Log) {}
+}
