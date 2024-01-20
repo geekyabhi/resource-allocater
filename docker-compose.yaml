@@ -111,6 +111,14 @@ services:
             - 6380
         ports:
             - "6380:6379"
+    
+    rsmachine:
+        image: redis:latest
+        container_name: rsmachine
+        expose:
+            - 6381
+        ports:
+            - "6381:6379"
 
     allocater:
         build:

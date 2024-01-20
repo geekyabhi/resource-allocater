@@ -1,7 +1,5 @@
 const Redis = require("ioredis");
 const {
-	REDIS_URL,
-	REDIS_PASSWORD,
 	REDIS_HOST,
 	REDIS_PORT,
 } = require("../../config");
@@ -15,7 +13,7 @@ class RedisUtil {
 		const redisClient = new Redis({
 			host: REDIS_HOST,
 			port: REDIS_PORT,
-			password: REDIS_PASSWORD,
+			// password: REDIS_PASSWORD,
 			showFriendlyErrorStack: true,
 			retryStrategy: (times) => {
 				if (times <= 3) {
@@ -33,7 +31,11 @@ class RedisUtil {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const data = await this.redis.get(key);
-				resolve(data);
+				if(!data){
+					resolve(null)
+				}else{
+					resolve(JSON.parse(data));
+				}
 			} catch (e) {
 				reject(e);
 			}
@@ -43,11 +45,12 @@ class RedisUtil {
 	RedisSET(key, value, time = 30, nx = true) {
 		return new Promise(async (resolve, reject) => {
 			try {
+				let val = JSON.stringify(value)
 				let data = null;
 				if (nx) {
-					data = await this.redis.set(key, value, "EX", time);
+					data = await this.redis.set(key, val, "EX", time);
 				} else {
-					data = await this.redis.set(key, value);
+					data = await this.redis.set(key, val);
 				}
 				resolve(data);
 			} catch (e) {
@@ -59,7 +62,7 @@ class RedisUtil {
 	RedisDEL(key) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.redisClient.del(key);
+				const data = await this.redis.del(key);
 				resolve(data);
 			} catch (e) {
 				reject(e);

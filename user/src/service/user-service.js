@@ -169,7 +169,7 @@ class UserService {
 				delete us["salt"];
 				return us;
 			});
-			await this.redis.RedisSET(hash,users,100)
+			await this.redis.RedisSET(hash,users,5)
 			return {
 				users,
 				cache:false

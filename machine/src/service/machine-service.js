@@ -1,20 +1,18 @@
 const { MachineRepository } = require("../repository");
 const {
-	GenerateSalt,
-	GenerateUniqueString,
-	GeneratePassword,
 	FormateData,
-	ValidatePassword,
-	GenerateSignature,
-	FilterValues,
 	GenerateUUID,
+	CreateHashFromString,
+	CreateHashFromFilters,
 } = require("../utils/functions");
 
-const { APIError, BadRequestError } = require("../utils/error/app-errors");
+const { APIError } = require("../utils/error/app-errors");
+const { RedisUtil } = require("../utils/cache");
 
 class MachineService {
 	constructor() {
 		this.repository = new MachineRepository();
+		this.redis = new RedisUtil()
 	}
 
 	async CreateMachine({
@@ -59,8 +57,17 @@ class MachineService {
 
 	async FindOneMachine(filters) {
 		try {
+			const id = filters.machine_id
+			const hash = CreateHashFromString(id)
+			const cache_machine = await this.redis.RedisGET(hash)
+			if(cache_machine){
+				return {
+					data : cache_machine,
+					from_cache:true
+				}
+			}
 			const machine = await this.repository.FindOneMachine(filters);
-			return FormateData({
+			const format_data = FormateData({
 				id: machine._id,
 				name: machine.name,
 				isactive: machine.isactive,
@@ -68,7 +75,12 @@ class MachineService {
 				machine_id: machine.machine_id,
 				createdAt: machine.createdAt,
 				updatedAt: machine.updatedAt,
-			});
+			})
+			await this.redis.RedisSET(hash,format_data,100)
+			return {
+				data:format_data,
+				from_cache:false
+			}
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
@@ -76,6 +88,14 @@ class MachineService {
 
 	async FindAllMachines(filters) {
 		try {
+			const hash = CreateHashFromFilters(filters)
+			const cache_machines = await this.redis.RedisGET(hash)
+			if(cache_machines){
+				return {
+					data:cache_machines,
+					from_cache:true
+				}
+			}
 			const machines = await this.repository.FindAllMachine(filters);
 			const formated_machines = machines.map((machine) =>
 				FormateData({
@@ -90,8 +110,12 @@ class MachineService {
 					updatedAt: machine.updatedAt,
 				})
 			);
+			await this.redis.RedisSET(hash,formated_machines,3)
 
-			return formated_machines;
+			return {
+				data:formated_machines,
+				from_cache:false
+			};
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
@@ -99,10 +123,12 @@ class MachineService {
 
 	async UpdateMachine(id, updated_values) {
 		try {
+			const hash = CreateHashFromString(id)
 			const updated_machine = await this.repository.UpdateMachine(
 				id,
 				updated_values
 			);
+			await this.redis.RedisDEL(hash)
 			return FormateData({
 				id: updated_machine._id,
 				name: updated_machine.name,
@@ -123,8 +149,10 @@ class MachineService {
 
 	async DeleteMachine(id) {
 		try {
+			const hash = CreateHashFromString(id)
 			const filter = { machine_id: id };
 			await this.repository.DeleteMachine(filter);
+			await this.redis.RedisDEL(hash)
 		} catch (e) {
 			throw new APIError(e, e.statusCode);
 		}
