@@ -39,6 +39,11 @@ var machine_master_db_uri = cfg.ResourceAllocatorMachineMasterURI
 var machine_feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
 var machine_feed_db_uri = cfg.ResourceAllocatorMachineFeedURI
 
+var rs_user_address = cfg.RsUserAddress
+var rs_machine_address = cfg.RsMachineAddress
+var rs_allocater_address = cfg.RsAllocaterAddress
+var rs_feed_address = cfg.RsFeedAddress
+
 func initiateAllDB() {
 
 	utils.InitSQLDB(allocator_host, allocator_port, allocator_user_name, allocator_password, allocator_db_name)
@@ -58,9 +63,19 @@ func initiateAllDB() {
 	fmt.Println("All DBs connected")
 }
 
+func initiateAllCache() {
+	utils.NewRedisHelper(rs_user_address, "", 0, "RS_USER")
+	utils.NewRedisHelper(rs_machine_address, "", 0, "RS_MACHINE")
+	utils.NewRedisHelper(rs_allocater_address, "", 0, "RS_ALLOCATER")
+	utils.NewRedisHelper(rs_feed_address, "", 0, "RS_FEED")
+	fmt.Println("All Redis Connected")
+	fmt.Println(utils.Redis_db_mapping)
+}
+
 func main() {
 	var wg sync.WaitGroup
 	initiateAllDB()
+	initiateAllCache()
 	go runConsumer(user_consumers.UserDataConsumer(), &wg, user_consumers.RunUserDataConsumer)
 	go runConsumer(machine_consumers.MachineDataConsumer(), &wg, machine_consumers.RunMachineDataConsumer)
 

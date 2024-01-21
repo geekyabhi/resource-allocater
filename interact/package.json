@@ -1,0 +1,29 @@
+{
+  "name": "interact",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./src/index.js",
+    "server": "node ./src/index.js",
+    "grpc": "npx grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` dock.proto",
+    "start": "npm run server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.9.14",
+    "bcrypt": "^5.1.1",
+    "colors": "^1.4.0",
+    "dotenv": "^16.3.2",
+    "expres": "^0.0.5",
+    "express": "^4.18.2",
+    "grpc-tools": "^1.12.4",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.3.0",
+    "nodemon": "^3.0.3",
+    "uuid": "^9.0.1",
+    "ws": "^8.16.0"
+  }
+}

@@ -119,6 +119,22 @@ services:
             - 6381
         ports:
             - "6381:6379"
+    
+    rsallocater:
+        image: redis:latest
+        container_name: rsallocater
+        expose:
+            - 6382
+        ports:
+            - "6382:6379"
+    
+    rsfeed:
+        image: redis:latest
+        container_name: rsfeed
+        expose:
+            - 6383
+        ports:
+            - "6383:6379"
 
     allocater:
         build:
@@ -199,6 +215,17 @@ services:
         container_name: dockgrpc
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+        restart: always
+
+    interact:
+        build: 
+            context: ./interact
+            dockerfile: Dockerfile
+        expose:
+            - 5006
+        ports:
+            - "5006:5006"
+        container_name: interact
         restart: always 
     
     nginx:
