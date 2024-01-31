@@ -16,8 +16,8 @@ import (
 var cfg, _ = utils.Load()
 var topic = "machine-data"
 var collection = "machines"
-var db_name = cfg.ResourceAllocatorMachineDbName
-var feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
+
+var verifire_db_name = cfg.VerifireDBName
 var temp_signal = make(chan bool)
 
 type MachineEvent struct {
@@ -64,8 +64,8 @@ func ProcessData(msg *kafka.Message) {
 		fmt.Println("Error while parsing machine")
 		return
 	}
-	if machineMessageData.Event == "ADD_MACHINE" {
-
+	switch machineMessageData.Event {
+	case "ADD_MACHINE":
 		data_to_insert := bson.M{"_id": machineMessageData.Data.ID,
 			"name":            machineMessageData.Data.Name,
 			"machine_id":      machineMessageData.Data.MachineID,
@@ -78,15 +78,11 @@ func ProcessData(msg *kafka.Message) {
 			"createdAt":       machineMessageData.Data.CreatedAt,
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}
-		utils.InsertOne(db_name, collection, data_to_insert)
-		utils.InsertOne(feed_db_name, collection, data_to_insert, "machines")
-
-	} else if machineMessageData.Event == "DELETE_MACHINE" {
+		utils.InsertOne(verifire_db_name, collection, data_to_insert)
+	case "DELETE_MACHINE":
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
-		utils.DeleteOne(db_name, collection, filter)
-		utils.DeleteOne(feed_db_name, collection, filter, "machines")
-	} else if machineMessageData.Event == "UPDATE_MACHINE" {
-
+		utils.DeleteOne(verifire_db_name, collection, filter, "machines")
+	case "UPDATE_MACHINE":
 		filter := bson.M{"machine_id": machineMessageData.Data.MachineID}
 
 		data_to_update := bson.M{"$set": bson.M{"_id": machineMessageData.Data.ID,
@@ -101,19 +97,10 @@ func ProcessData(msg *kafka.Message) {
 			"createdAt":       machineMessageData.Data.CreatedAt,
 			"updatedAt":       machineMessageData.Data.UpdatedAt,
 		}}
-		utils.UpdateOne(db_name, collection, filter, data_to_update)
-		utils.UpdateOne(feed_db_name, collection, filter, data_to_update, "machines")
+		utils.UpdateOne(verifire_db_name, collection, filter, data_to_update, "machines")
+
 	}
 
-}
-
-func MachineDataConsumer() *utils.KafkaConsumer {
-	consumer, err := utils.NewKafkaConsumer(topic, topic)
-	if err != nil {
-		panic(err)
-	}
-
-	return consumer
 }
 
 func RunMachineDataConsumer(consumer *utils.KafkaConsumer) {
@@ -136,6 +123,15 @@ func RunMachineDataConsumer(consumer *utils.KafkaConsumer) {
 
 	wg.Wait()
 
+}
+
+func MachineDataConsumer() *utils.KafkaConsumer {
+	consumer, err := utils.NewKafkaConsumer(topic, topic)
+	if err != nil {
+		panic(err)
+	}
+
+	return consumer
 }
 
 func StopAndClose(consumer *utils.KafkaConsumer) {

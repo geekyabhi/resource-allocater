@@ -10,66 +10,50 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var mongoClients map[string]*mongo.Client
-var Mongo_db_name_mapping map[string]string
+var MONGO_DB_POOL map[string]*mongo.Client
 
 func InitMongoDB(connectionString, dbName string) {
-	if mongoClients == nil {
-		mongoClients = make(map[string]*mongo.Client)
+	if MONGO_DB_POOL == nil {
+		MONGO_DB_POOL = make(map[string]*mongo.Client)
 	}
 
-	if Mongo_db_name_mapping == nil {
-		Mongo_db_name_mapping = make(map[string]string)
-	}
-
-	// Set up client options
 	clientOptions := options.Client().ApplyURI(connectionString)
 
-	// Create a new MongoDB client
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Set up a context with a timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Connect to MongoDB
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Verify the connection
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	mongoClients[dbName] = client
+	MONGO_DB_POOL[dbName] = client
 }
 
 func GetMongoDBClient(dbName string) *mongo.Client {
-	return mongoClients[dbName]
+	return MONGO_DB_POOL[dbName]
 }
 
-func InsertOne(dbName, collectionName string, document interface{}, realDBName ...string) (*mongo.InsertOneResult, error) {
+func InsertOne(dbName, collectionName string, document interface{}) (*mongo.InsertOneResult, error) {
 	client := GetMongoDBClient(dbName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var targetDBName string
-	if len(realDBName) > 0 && realDBName[0] != "" {
-		targetDBName = realDBName[0]
-	} else {
-		targetDBName = dbName
-	}
-
-	collection := client.Database(targetDBName).Collection(collectionName)
-
+	collection := client.Database(dbName).Collection(collectionName)
 	result, err := collection.InsertOne(ctx, document)
+	fmt.Println(result)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

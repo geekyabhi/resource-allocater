@@ -4,6 +4,7 @@ from datetime import datetime
 from utils.mongodb import MongoDBClient
 from .models import MachineAllocation
 from utils.exceptions import CustomException
+from utils.kafka_helpers import KafkaProducerHandler
 from docker_service_communication.grpc_communication import DockerService
 
 class MachineAllocationService:
@@ -11,6 +12,7 @@ class MachineAllocationService:
         self.model = MachineAllocation()
         self.mongo_client = MongoDBClient()
         self.docker_service = DockerService()
+        self.kafka = KafkaProducerHandler()
 
     def create_machine(self, **data):
         try:
@@ -47,6 +49,11 @@ class MachineAllocationService:
                 "uid": data.get('uid'),
             }
             allocated_machine = self.model.add(allocation_data)
+            kafka_obj = {
+                'event':"ADD_DATA",
+                'data': allocation_data
+            }
+            self.kafka.produce_message("allocation-data",json.dumps(kafka_obj))
             return allocated_machine
         except CustomException as e:
             raise CustomException(e,status_code=e.status_code)
@@ -56,6 +63,13 @@ class MachineAllocationService:
             res = self.docker_service.remove_container(container_id)
             if not res.get('error'):
                 self.model.delet(container_id)
+            kafka_obj = {
+                'event':"DELETE_DATA",
+                'data' : {
+                    'container_id':container_id
+                }
+            }
+            self.kafka.produce_message("allocation-data",json.dumps(kafka_obj))
             return res
         except CustomException as e:
             raise CustomException(e, status_code=e.status_code)
@@ -65,6 +79,11 @@ class MachineAllocationService:
             res = self.docker_service.stop_container(container_id)
             if not res.get('error'):
                 data = self.model.update(container_id, {"status": "stopped"})
+                kafka_obj = {
+                    'event':"UPDATE_DATA",
+                    'data' : data
+                }
+                self.kafka.produce_message("allocation-data",json.dumps(kafka_obj))
                 return data
             return res
         except CustomException as e:
@@ -75,6 +94,11 @@ class MachineAllocationService:
             res = self.docker_service.start_container(container_id)
             if not res.get('error'):
                 data = self.model.update(container_id, {"status": "active"})
+                kafka_obj = {
+                    'event':"UPDATE_DATA",
+                    'data' : data
+                }
+                self.kafka.produce_message("allocation-data",json.dumps(kafka_obj))
                 return data
             return res
         except CustomException as e:

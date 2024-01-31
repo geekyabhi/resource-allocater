@@ -16,9 +16,7 @@ import (
 var topic = "user-data"
 var temp_signal = make(chan bool)
 var cfg, _ = utils.Load()
-var db_name = cfg.ResourceAllocatorAllocatorDbName
-var mongo_master_db_name = cfg.ResourceAllocatorMachineMasterDbName
-var feed_db_name = cfg.ResourceAllocatorMachineFeedDbName
+var verifire_db_name = cfg.VerifireDBName
 var collection = "users"
 
 type UserEvent struct {
@@ -80,14 +78,8 @@ func ProcessData(msg *kafka.Message) {
 	email_notification := user.Data.EmailNotification
 	sms_notification := user.Data.SMSNotification
 
-	var userQuery, machineQuery string
-	machineQuery = ""
-	if event == "ADD_USER" {
-		userQuery = fmt.Sprintf(`
-		INSERT INTO user (
-			id, first_name, last_name, email, password, phone_number, gender, salt, verified,admin , email_notification, sms_notification
-		) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %t,%t, %t, %t)`, id, first_name, last_name, email, password, phone_number, gender, salt, verified, admin, email_notification, sms_notification)
-
+	switch event {
+	case "ADD_USER":
 		mongo_data_to_insert := bson.M{
 			"id":                 id,
 			"first_name":         first_name,
@@ -102,39 +94,13 @@ func ProcessData(msg *kafka.Message) {
 			"email_notification": email_notification,
 			"sms_notification":   sms_notification,
 		}
-		utils.InsertOne(mongo_master_db_name, collection, mongo_data_to_insert, "machines")
-		utils.InsertOne(feed_db_name, collection, mongo_data_to_insert, "machines")
+		utils.InsertOne(verifire_db_name, collection, mongo_data_to_insert)
 
-	} else if event == "DELETE_USER" {
-		userQuery = fmt.Sprintf(`
-			DELETE FROM user WHERE id = '%s'
-		`, id)
-		machineQuery = fmt.Sprintf(`
-			DELETE FROM machineallocation WHERE uid = '%s'
-		`, id)
+	case "DELETE_USER":
 		filter := bson.M{"id": id}
-		utils.DeleteOne(mongo_master_db_name, collection, filter, "machines")
-		utils.DeleteOne(feed_db_name, collection, filter, "machines")
+		utils.DeleteOne(verifire_db_name, collection, filter)
 
-	} else if event == "UPDATE_USER" {
-		userQuery = fmt.Sprintf(`
-			UPDATE user 
-			SET 
-				first_name = '%s', 
-				last_name = '%s', 
-				email = '%s', 
-				password = '%s', 
-				phone_number = '%s', 
-				gender = '%s', 
-				salt = '%s', 
-				verified = %t, 
-				admin = %t, 
-				email_notification = %t, 
-				sms_notification = %t 
-			WHERE 
-				id = '%s'`,
-			first_name, last_name, email, password, phone_number, gender, salt, verified, admin, email_notification, sms_notification, id)
-
+	case "UPDATE_USER":
 		filter := bson.M{"id": id}
 		mongo_data_to_update := bson.M{"$set": bson.M{
 			"first_name":         first_name,
@@ -149,28 +115,8 @@ func ProcessData(msg *kafka.Message) {
 			"email_notification": email_notification,
 			"sms_notification":   sms_notification,
 		}}
-		utils.UpdateOne(mongo_master_db_name, collection, filter, mongo_data_to_update, "machines")
-		utils.UpdateOne(feed_db_name, collection, filter, mongo_data_to_update, "machines")
-
+		utils.UpdateOne(verifire_db_name, collection, filter, mongo_data_to_update, "machines")
 	}
-	db_pool := utils.GetSQLDB(db_name)
-	result, err := utils.QuerySQLDatabase(db_pool, userQuery)
-	if machineQuery != "" {
-		result, err = utils.QuerySQLDatabase(db_pool, machineQuery)
-	}
-	if err != nil {
-		fmt.Printf("error %s", err)
-	}
-	utils.PrintSQLResult(result)
-}
-
-func UserDataConsumer() *utils.KafkaConsumer {
-	consumer, err := utils.NewKafkaConsumer(topic, topic)
-	if err != nil {
-		panic(err)
-	}
-
-	return consumer
 }
 
 func RunUserDataConsumer(consumer *utils.KafkaConsumer) {
@@ -193,6 +139,15 @@ func RunUserDataConsumer(consumer *utils.KafkaConsumer) {
 
 	wg.Wait()
 
+}
+
+func UserDataConsumer() *utils.KafkaConsumer {
+	consumer, err := utils.NewKafkaConsumer(topic, topic)
+	if err != nil {
+		panic(err)
+	}
+
+	return consumer
 }
 
 func StopAndClose(consumer *utils.KafkaConsumer) {
