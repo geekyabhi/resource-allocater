@@ -12,6 +12,9 @@
 
 ----
 ## High Level Design
+![image(https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA)](https://github.com/geekyabhi/resource-allocater/assets/55759980/489e979d-3448-4025-97b1-cb07c16f1e2a)
+https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
+
 <!-- <iframe style="border:none" width="800" height="450" src="https://whimsical.com/embed/AuA69B8x4jGpYofUNxtzPA"></iframe> -->
 
 
