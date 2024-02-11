@@ -53,7 +53,7 @@ https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
 ### Verifire Service:
 
 - Verifies requests coming from users, performing necessary validations and providing required data.
-- Implemented in Rust.
+- Implemented in Golang.
 - Uses MongoDB for permanent storage and Redis for caching.
 
 ### Docker Service:
@@ -64,7 +64,7 @@ https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
 ### Limitify Service:
 
 - Manages rate limiting of requests based on predefined rules.
-- Implemented in Rust.
+- Implemented in Golang.
 - Uses Redis for storing counts, etc.
 
 ### Notification Service:
@@ -110,8 +110,8 @@ In the microservices architecture, several key components contribute to the syst
 The project leverages a diverse set of programming languages tailored to specific tasks:
 
 - **Python:** Allocation, Feed, Docker services.
-- **Golang:** Central Broker, Notification services.
-- **Rust:** Verifire, Limitify services.
+- **Golang:** Central Broker, Notification services , Verifire , Limitify services.
+<!-- - **Rust:** Verifire, Limitify services. -->
 - **Node.js:** Interact, User, Machines services.
 - **NGINX:** Acts as a reverse proxy.
 
