@@ -115,7 +115,7 @@ func ProcessData(msg *kafka.Message) {
 			"email_notification": email_notification,
 			"sms_notification":   sms_notification,
 		}}
-		utils.UpdateOne(verifire_db_name, collection, filter, mongo_data_to_update, "machines")
+		utils.UpdateOne(verifire_db_name, collection, filter, mongo_data_to_update)
 	}
 }
 

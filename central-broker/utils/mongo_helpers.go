@@ -67,17 +67,9 @@ func UpdateOne(dbName, collectionName string, filter, update interface{}, realDB
 	// Set up a context with a timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	fmt.Println(dbName)
+	collection := client.Database(dbName).Collection(collectionName)
 
-	var targetDBName string
-	if len(realDBName) > 0 && realDBName[0] != "" {
-		targetDBName = realDBName[0]
-	} else {
-		targetDBName = dbName
-	}
-
-	collection := client.Database(targetDBName).Collection(collectionName)
-
-	// Perform an update operation
 	result, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return nil, err

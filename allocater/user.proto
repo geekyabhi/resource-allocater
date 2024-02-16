@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "./user";
+package user;
+
+message UserRequestData{
+    string data = 1;
+}
+
+message UserResponseData{
+    string data = 1;
+}
+
+
+service UserService {
+    rpc GetUserData (UserRequestData) returns (UserResponseData) {};
+}

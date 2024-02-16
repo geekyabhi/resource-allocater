@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from utils.exceptions import CustomException
 from jwt.exceptions import ExpiredSignatureError, DecodeError, InvalidTokenError
 from allocater.env_config import ConfigUtil
-from users.service import UserService
+from microservice_comm.grpc_comm.verifire.user.service import UserService
 
 configuration = ConfigUtil().get_config_data()
 APP_SECRET = configuration.get("APP_SECRET")
@@ -19,11 +19,12 @@ def auth_layer(view_func):
             try:
                 decoded_payload = jwt.decode(token, APP_SECRET, algorithms=["HS256"])
                 email = decoded_payload.get("email", None)
+                id = decoded_payload.get("id", None)
 
                 if not email:
                     raise CustomException("Email not present.", status_code=404)
 
-                user_detail = UserService().find(email=email)
+                user_detail = UserService().get_user(user_data=id)
                 if not user_detail:
                     raise CustomException("No such user in database", status_code=404)
 

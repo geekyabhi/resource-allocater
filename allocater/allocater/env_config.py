@@ -23,7 +23,9 @@ class ConfigUtil:
             "DOCK_HOST",
             "DOCK_PORT",
             "DOCK_GRPC_HOST",
-            "DOCK_GRPC_PORT"
+            "DOCK_GRPC_PORT",
+            "VERIFIRE_GRPC_HOST",
+            "VERIFIRE_GRPC_PORT"
         ]
 
     def get_config_data(self):

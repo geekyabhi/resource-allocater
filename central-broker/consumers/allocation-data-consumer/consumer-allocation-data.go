@@ -22,14 +22,17 @@ var collection = "allocations"
 type AllocationEvent struct {
 	Event string `json:"event"`
 	Data  struct {
+		ID            int    `json:"id"`
 		MachineID     string `json:"machine_id"`
-		ConatinerID   string `json:"container_id"`
+		ContainerID   string `json:"container_id"`
+		StartingDate  string `json:"starting_date"`
+		EndDate       string `json:"end_date"`
 		IsActive      bool   `json:"is_active"`
 		Status        string `json:"status"`
 		MachineName   string `json:"machine_name"`
 		ContainerName string `json:"container_name"`
-		PortUsed      string `json:"port_used"`
-		Uid           string `json:"uid"`
+		PortUsed      int    `json:"port_used"`
+		UID           string `json:"uid"`
 	}
 }
 
@@ -55,21 +58,22 @@ func StartConsumer(kafkaConsumer *kafka.Consumer, wg *sync.WaitGroup) {
 
 func ProcessData(msg *kafka.Message) {
 	var allocation AllocationEvent
+	fmt.Println(string(msg.Value))
 	err := json.Unmarshal(msg.Value, &allocation)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		fmt.Println("Error while parsing user")
 		return
 	}
 	event := allocation.Event
 	machine_id := allocation.Data.MachineID
-	container_id := allocation.Data.ConatinerID
+	container_id := allocation.Data.ContainerID
 	is_active := allocation.Data.IsActive
 	status := allocation.Data.Status
 	machine_name := allocation.Data.MachineName
 	container_name := allocation.Data.ContainerName
 	port_used := allocation.Data.PortUsed
-	uid := allocation.Data.Uid
+	uid := allocation.Data.UID
 
 	switch event {
 	case "ADD_DATA":

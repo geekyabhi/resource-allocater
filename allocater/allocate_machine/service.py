@@ -6,10 +6,11 @@ from .models import MachineAllocation
 from utils.exceptions import CustomException
 from utils.kafka_helpers import KafkaProducerHandler
 from docker_service_communication.grpc_communication import DockerService
-
+from microservice_comm.grpc_comm.verifire.machine.service import MachineService
 class MachineAllocationService:
     def __init__(self) -> None:
         self.model = MachineAllocation()
+        self.machine_service = MachineService()
         self.mongo_client = MongoDBClient()
         self.docker_service = DockerService()
         self.kafka = KafkaProducerHandler()
@@ -17,7 +18,9 @@ class MachineAllocationService:
     def create_machine(self, **data):
         try:
             machine_id = data.get('machine_id')
-            image_detail = self.mongo_client.read({"machine_id": machine_id})
+            image_detail = self.machine_service.get_machine(machine_data=machine_id)
+            if not image_detail:
+                raise CustomException("No such machine ",status_code=400)
             props = image_detail.get('props')
             environment = dict()
             for properties in props :
@@ -49,6 +52,7 @@ class MachineAllocationService:
                 "uid": data.get('uid'),
             }
             allocated_machine = self.model.add(allocation_data)
+            allocation_data['starting_date'] = allocation_data.get('starting_date',datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
             kafka_obj = {
                 'event':"ADD_DATA",
                 'data': allocation_data
