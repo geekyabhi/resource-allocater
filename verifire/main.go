@@ -8,8 +8,10 @@ import (
 
 	"github.com/verifire/config"
 	"github.com/verifire/database/mongo_db"
+	"github.com/verifire/internal/allocation"
 	"github.com/verifire/internal/machine"
 	"github.com/verifire/internal/user"
+	allocationpb "github.com/verifire/protos/allocation"
 	machinepb "github.com/verifire/protos/machine"
 	userpb "github.com/verifire/protos/user"
 	"google.golang.org/grpc"
@@ -31,6 +33,7 @@ func main() {
 	s := grpc.NewServer()
 	userpb.RegisterUserServiceServer(s, &user.Server{})
 	machinepb.RegisterMachineServiceServer(s, &machine.Server{})
+	allocationpb.RegisterAllocationServiceServer(s, &allocation.Server{})
 	log.Println("gRPC server started on port :50052")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
