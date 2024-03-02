@@ -13,6 +13,8 @@ class ConfigUtil:
             "CASSANDRA_HOST",
             "CASSANDRA_KEY_SPACE",
             "CASSANDRA_TEST_KEY_SPACE",
+            "VERIFIRE_GRPC_HOST",
+            "VERIFIRE_GRPC_PORT",
         ]
 
     def get_config_data(self):

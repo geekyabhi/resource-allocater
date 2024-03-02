@@ -50,7 +50,7 @@ const ValidateSignature = async (req) => {
 				signature.split(" ")[1],
 				APP_SECRET
 			);
-			req.user = payload;
+			return payload
 		} else {
 			throw new AuthorizationError(`No token found`);
 		}

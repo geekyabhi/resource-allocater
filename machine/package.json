@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@grpc/grpc-js": "^1.10.1",
 		"amqplib": "^0.10.3",
 		"bcrypt": "^5.1.1",
 		"colors": "^1.4.0",
@@ -21,7 +22,8 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "nodemon src/index.js",
-		"start": "node src/index.js"
+		"start": "node src/index.js",
+		"grpc": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./user.proto"
 	},
 	"keywords": [],
 	"author": "",

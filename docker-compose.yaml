@@ -92,16 +92,16 @@ services:
             - ./db_vol/mnmachine_data:/data/db
         command: mongod --auth
     
-    mnfeed:
+    mnverifire:
         image: mongo
-        container_name: mnfeed
+        container_name: mnverifire
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: Abhinav1712
         ports:
             - "27020:27017"
         volumes:
-            - ./db_vol/mnfeed_data:/data/db
+            - ./db_vol/mnverifire_data:/data/db
         command: mongod --auth
 
     rsuser:
@@ -148,6 +148,7 @@ services:
         depends_on:
             - msalc
             - mnallocation
+            - verifire
             # - dockgrpc
         restart: always
     
@@ -162,7 +163,8 @@ services:
         container_name: feed
         depends_on:
             - csfeed
-            - mnfeed
+            - mnverifire
+            - verifire
         restart: always
 
     user:
@@ -176,6 +178,7 @@ services:
         container_name: user
         depends_on:
             - msuser
+            - verifire
         restart: always
     
     machine:
@@ -189,6 +192,7 @@ services:
         container_name: machine
         depends_on:
             - mnmachine
+            - verifire
         restart: always
     
     dock:
@@ -228,6 +232,19 @@ services:
         container_name: interact
         restart: always 
     
+    verifire:
+        build: 
+            context: ./verifire
+            dockerfile: Dockerfile
+        expose:
+            - 50052
+        ports:
+            - "50052:50052"
+        container_name: verifire
+        depends_on:
+            - mnverifire
+        restart: always 
+    
     nginx:
         image: nginx:latest
         restart: always
@@ -244,7 +261,7 @@ services:
     #     container_name: central
     #     depends_on:
     #         - mnmachine
-    #         - mnfeed
+    #         - mnverifire
     #         - mnallocation
     #         - msalc
     #         - msuser

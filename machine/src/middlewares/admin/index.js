@@ -1,10 +1,13 @@
-const { UserService } = require("../../service");
 const { AuthorizationError } = require("../../utils/error/app-errors");
+const {UserService} = require('../../microservice_comm/grpc_comm/verifire/user/index')
+const userService = new UserService()
 
 const Admin = async (req, res, next) => {
 	try {
-        const user = await new UserService().FindOneUser({id:req.user.id})
-        if(user?.admin!=true){
+		if(!req.user){
+			req.user = await userService.getUser(req.payload.id)
+		}
+        if(req?.user?.admin!=true){
             throw new Error("Not a admin")
         }
 		next();

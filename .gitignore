@@ -50,4 +50,4 @@ migrations/
 db_vol
 
 *_pb2*
-# *_pb*
+*_pb*

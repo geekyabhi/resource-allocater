@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/verifire/config"
 	"github.com/verifire/database/mongo_db"
@@ -46,6 +47,7 @@ func NewUserRepo() (*UserRespository, error) {
 func (repo *UserRespository) FindUserByID(id string) (*User, error) {
 	var user User
 	filter := bson.M{"id": id}
+	fmt.Println(filter)
 	err := repo.Collection.FindOne(context.Background(), filter).Decode(&user)
 	utils.Produce(err)
 	return &user, nil

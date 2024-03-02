@@ -10,4 +10,7 @@ COPY . .
 
 EXPOSE 5002
 
-CMD ["npm","start"]
+CMD ["sh", "-c","\
+    npm run grpc & \
+    npm start\
+"]

@@ -17,6 +17,8 @@ const config = {
 	MAIL_BINDING_KEY: "MAIL_SERVICE",
 	QUEUE_NAME: "ECOMMERCE_QUEUE",
 	KAFKA_BROKER_URI: process.env.KAFKA_BROKER_URI,
+	VERIFIRE_GRPC_HOST : process.env.VERIFIRE_GRPC_HOST,
+	VERIFIRE_GRPC_PORT : process.env.VERIFIRE_GRPC_PORT
 };
 
 module.exports = config;

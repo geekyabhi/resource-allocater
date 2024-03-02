@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "./machine";
+package machine;
+
+message MachineRequestData{
+    string data = 1;
+}
+
+message MachineResponseData{
+    string data = 1;
+}
+
+
+service MachineService {
+    rpc GetMachineData (MachineRequestData) returns (MachineResponseData) {};
+}
