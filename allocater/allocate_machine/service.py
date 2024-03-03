@@ -83,6 +83,7 @@ class MachineAllocationService:
             res = self.docker_service.stop_container(container_id)
             if not res.get('error'):
                 data = self.model.update(container_id, {"status": "stopped"})
+                data['starting_date'] = datetime.strftime(data.get('starting_date',datetime.now()),"%m/%d/%Y, %H:%M:%S")
                 kafka_obj = {
                     'event':"UPDATE_DATA",
                     'data' : data
@@ -98,6 +99,7 @@ class MachineAllocationService:
             res = self.docker_service.start_container(container_id)
             if not res.get('error'):
                 data = self.model.update(container_id, {"status": "active"})
+                data['starting_date'] = datetime.strftime(data.get('starting_date',datetime.now()),"%m/%d/%Y, %H:%M:%S")
                 kafka_obj = {
                     'event':"UPDATE_DATA",
                     'data' : data
