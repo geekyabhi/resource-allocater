@@ -1,55 +1,19 @@
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 require("dotenv").config({ path: "./config/.env" });
 const { v4: uuid } = require("uuid");
 const crypto = require("crypto");
 // const { BadRequestError, AuthorizationError } = require("../error/app-errors");
-//Utility functions
 
-const GenerateSalt = async () => {
-	try {
-		return await bcrypt.genSalt();
-	} catch (e) {
-		throw new Error(`Unable to create Salt ${e}`);
-	}
-};
-
-const GeneratePassword = async (password, salt) => {
-	try {
-		return await bcrypt.hash(password, salt);
-	} catch (e) {
-		throw new Error(`Unable to create Password ${e}`);
-	}
-};
-
-const ValidatePassword = async (enteredPassword, savedPassword, salt) => {
-	try {
-		return await bcrypt.compare(enteredPassword, savedPassword);
-	} catch (e) {
-		throw new Error(`Unable to match password ${e}`);
-	}
-};
-
-const GenerateSignature = async (payload) => {
+const ValidateSignature = async (token) => {
 	try {
 		const APP_SECRET = process.env.APP_SECRET;
-		return await jwt.sign(payload, APP_SECRET, { expiresIn: "2d" });
-	} catch (e) {
-		throw new Error(`Unable to generate signature ${e}`);
-	}
-};
-
-const ValidateSignature = async (req) => {
-	try {
-		const signature = req.get("Authorization");
-		const APP_SECRET = process.env.APP_SECRET;
-		if (signature) {
+		if (token) {
 			const payload = await jwt.verify(
-				signature.split(" ")[1],
+				token,
 				APP_SECRET
 			);
-			req.user = payload;
+			return payload
 		} else {
 			throw new AuthorizationError(`No token found`);
 		}
@@ -95,112 +59,12 @@ const GenerateUUID = () => {
 	return id;
 };
 
-function GenerateUniqueString(length = 14) {
-	const byteLength = Math.ceil(length / 2);
-	const randomBytes = crypto.randomBytes(byteLength).toString("hex");
-	return randomBytes.slice(0, length);
-}
-
-const VerifyOTPUtil = (redisClient, provided_otp, key_email) => {
-	return new Promise(async (resolve, reject) => {
-		try {
-			const cache_otp = await redisClient.RedisGET(key_email);
-			if (provided_otp === "000000") resolve(true);
-			if (!cache_otp) resolve(false)
-			if (String(cache_otp) != String(provided_otp))
-				resolve(false)
-
-			resolve(true);
-		} catch (e) {
-			reject(e);
-		}
-	});
-};
-
-const CanSendOTP = (redisClient, key_email) => {
-	return new Promise(async (resolve, reject) => {
-		try {
-			const data = {};
-			const ttl = await redisClient.RedisTTL(key_email);
-			data["time_remaining"] = ttl;
-			data["can_send"] = ttl == 0 || ttl == -2 ? true : false;
-			resolve(data);
-		} catch (e) {
-			reject(e);
-		}
-	});
-};
-
-const SendOTP = async (otp, user_data, rmq) => {
-	try {
-		const publishData = {
-			first_name: user_data.first_name,
-			last_name: user_data.last_name,
-			phone_number: user_data.phone_number,
-			sms_notification: user_data.sms_notification == 1 ? true : false,
-			email_notification:
-				user_data.email_notification == 1 ? true : false,
-			email: user_data.email,
-			id: user_data.id,
-			otp,
-		};
-		await rmq.PublishMessage(
-			rmq.MAIL_BINDING_KEY,
-			JSON.stringify({ ...publishData, event: "profile_verification" })
-		);
-	} catch (e) {
-		throw new Error(e);
-	}
-};
-
-const FilterValues = (fields, not_allowed_values, obj) => {
-	try {
-		if (!fields) fields = [];
-		if (!not_allowed_values) not_allowed_values = [];
-
-		for (let field of fields)
-			for (let value of not_allowed_values)
-				if (obj[field] === value)
-					throw new Error(`${field} cannot contain ${value} `);
-	} catch (e) {
-		throw new BadRequestError(e);
-	}
-};
-
-const CreateHashFromFilters = async(filters)=>{
-	const sortedFilters = {};
-	Object.keys(filters).sort().forEach(key => {
-		sortedFilters[key] = filters[key];
-	});
-	const filtersString = JSON.stringify(sortedFilters)
-	return await CreateHashFromString(filtersString)
-}
-
-const CreateHashFromString = async(str)=>{
-	const encoder = new TextEncoder();
-	const data = encoder.encode(str);
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-	const hashArray = Array.from(new Uint8Array(hashBuffer));
-  	const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-	return hashHex;
-}
 
 module.exports = {
-	GenerateSalt,
-	GeneratePassword,
-	GenerateSignature,
 	FormateData,
-	ValidatePassword,
 	ValidateSignature,
 	GenerateOTP,
 	CreateUniqueName,
-	GenerateUniqueString,
-	VerifyOTPUtil,
-	CanSendOTP,
-	FilterValues,
-	SendOTP,
 	GenerateUUID,
-	CreateHashFromFilters,
-	CreateHashFromString,
 	DecodeSignature
 };

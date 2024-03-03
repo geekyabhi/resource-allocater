@@ -1,0 +1,21 @@
+syntax = "proto3";
+option go_package = "./allocation";
+package allocation;
+
+message AllocationRequestData{
+    string data = 1;
+}
+
+message AllocationResponseData{
+    string data = 1;
+}
+
+message AllAllocationResponseData{
+    string data = 1;
+}
+
+
+service AllocationService {
+    rpc GetAllocationData (AllocationRequestData) returns (AllocationResponseData) {};
+    rpc GetAllAllocationData (AllocationRequestData) returns (AllAllocationResponseData) {};
+}

@@ -10,5 +10,9 @@ COPY . .
 
 EXPOSE 5006
 
-CMD ["npm","start"]
-
+CMD ["sh", "-c","\
+    npm run grpc & \
+    npm run grpc_user & \
+    npm run grpc_allocation & \
+    npm start\
+"]

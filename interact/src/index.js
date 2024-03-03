@@ -10,12 +10,24 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const {UserService} = require('./microservice_comm/grpc_comm/verifire/user');
+const {AllocationService} =require('./microservice_comm/grpc_comm/verifire/allocation')
+const { ValidateSignature } = require('./utils/functions');
+const us = new UserService()
+const as = new AllocationService()
+
 wss.on('connection',(ws)=>{
     console.log("Client connected")
     ws.on('message',async(message)=>{
         try{
             const data = JSON.parse(message);
-            const {event , containerId} = data
+            const {event , containerId, token} = data
+            const payload = await ValidateSignature(token)
+            const user_data = await us.getUser(payload.id)
+            const allocation_data = await as.getAllocationByContainerId(containerId)
+            if(user_data?.id && allocation_data?.uid && String(allocation_data.uid) != String(user_data.id) && user_data?.admin!=true){
+                throw new Error("No such instance exist")
+            }
             switch (event) {
                 case "SEND_LOGS":
                     const ds = new DockerService()
