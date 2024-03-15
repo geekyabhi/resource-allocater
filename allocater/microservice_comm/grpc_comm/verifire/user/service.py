@@ -1,6 +1,6 @@
 import grpc
-import user_pb2
-import user_pb2_grpc
+from proto import user_pb2
+from proto import user_pb2_grpc
 from allocater.env_config import ConfigUtil
 import json
 

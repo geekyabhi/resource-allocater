@@ -1,6 +1,6 @@
 import grpc
-import dock_pb2
-import dock_pb2_grpc
+from proto import dock_pb2
+from proto import dock_pb2_grpc
 import json
 from allocater.env_config import ConfigUtil
 

@@ -5,7 +5,7 @@ from utils.mongodb import MongoDBClient
 from .models import MachineAllocation
 from utils.exceptions import CustomException
 from utils.kafka_helpers import KafkaProducerHandler
-from docker_service_communication.grpc_communication import DockerService
+from microservice_comm.grpc_comm.docker_service.service import DockerService
 from microservice_comm.grpc_comm.verifire.machine.service import MachineService
 class MachineAllocationService:
     def __init__(self) -> None:
@@ -39,7 +39,6 @@ class MachineAllocationService:
             if environment :
                 container_config['environment'] = environment
             container_details = self.docker_service.run_container(container_config)
-
             allocation_data = {
                 "machine_id": machine_id,
                 "container_id": container_details.get('id'),

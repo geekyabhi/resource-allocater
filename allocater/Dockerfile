@@ -15,8 +15,8 @@ CMD ["sh", "-c", "\
     python manage.py makemigrations users && \
     python manage.py makemigrations allocate_machine && \
     python manage.py migrate && \
-    python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. dock.proto && \
-    python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./user.proto &&\
-    python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./machine.proto &&\
+    python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./proto/dock.proto && \
+    python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./proto/user.proto &&\
+    python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./proto/machine.proto &&\
     python manage.py runserver 0.0.0.0:5003 \
 "]

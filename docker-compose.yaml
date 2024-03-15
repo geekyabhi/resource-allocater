@@ -195,18 +195,18 @@ services:
             - verifire
         restart: always
     
-    dock:
-        build: 
-            context: ./dock
-            dockerfile: Dockerfile
-        expose:
-            - 5005
-        ports:
-            - "5005:5005"
-        container_name: dock
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        restart: always 
+    # dock:
+    #     build: 
+    #         context: ./dock
+    #         dockerfile: Dockerfile
+    #     expose:
+    #         - 5005
+    #     ports:
+    #         - "5005:5005"
+    #     container_name: dock
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     restart: always 
     
     dockgrpc:
         build: 
@@ -230,6 +230,8 @@ services:
         ports:
             - "5006:5006"
         container_name: interact
+        depends_on:
+            - verifire
         restart: always 
     
     verifire:
@@ -245,14 +247,23 @@ services:
             - mnverifire
         restart: always 
     
-    nginx:
+    gateway:
         image: nginx:latest
         restart: always
-        container_name: nginx
+        container_name: gateway
         volumes:
-            - "./nginx/default.conf:/etc/nginx/conf.d/default.conf"
+            - "./gateway/default.conf:/etc/nginx/conf.d/default.conf"
         ports:
             - "5000:80"
+    
+    # mesh:
+    #     image: nginx:latest
+    #     restart: always
+    #     container_name: mesh
+    #     volumes:
+    #         - "./mesh/default.conf:/etc/nginx/conf.d/default.conf"
+    #     ports:
+    #         - "50000:80"
     
     # central:
     #     build: 
