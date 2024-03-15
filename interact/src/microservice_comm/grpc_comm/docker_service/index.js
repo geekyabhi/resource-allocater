@@ -1,10 +1,10 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
-const { DOCK_GRPC_HOST, DOCK_GRPC_PORT } = require('../config');
+const { DOCK_GRPC_HOST, DOCK_GRPC_PORT } = require('../../../config');
 const { Readable } = require('stream');
 
-const PROTO_PATH = path.join(__dirname, '../../dock.proto');
+const PROTO_PATH = './src/proto/dock.proto'
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,

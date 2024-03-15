@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "server": "node ./src/index.js",
-    "grpc": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./dock.proto",
-    "grpc_user": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./user.proto",
-    "grpc_allocation": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./allocation.proto",
+    "grpc_docker": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./src/proto/dock.proto",
+    "grpc_user": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./src/proto/user.proto",
+    "grpc_allocation": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` ./src/proto/allocation.proto",
     "start": "npm run server"
   },
   "keywords": [],

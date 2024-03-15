@@ -1,4 +1,3 @@
-const {DockerService} = require('./docker_service_communication/grpc_communication')
 const WebSocket = require('ws');
 require('colors')
 
@@ -10,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const {DockerService} = require('./microservice_comm/grpc_comm/docker_service/')
 const {UserService} = require('./microservice_comm/grpc_comm/verifire/user');
 const {AllocationService} =require('./microservice_comm/grpc_comm/verifire/allocation')
 const { ValidateSignature } = require('./utils/functions');

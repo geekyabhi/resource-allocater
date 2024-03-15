@@ -2,7 +2,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const { VERIFIRE_GRPC_HOST ,VERIFIRE_GRPC_PORT} = require('../../../../config');
 
-const PROTO_PATH = './user.proto'; // Path to your .proto file
+const PROTO_PATH = './src/proto/user.proto'; // Path to your .proto file
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
