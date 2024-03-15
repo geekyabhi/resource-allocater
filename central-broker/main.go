@@ -26,7 +26,7 @@ var verifire_db_uri = cfg.VerifireDBURI
 // var rs_user_address = cfg.RsUserAddress
 // var rs_machine_address = cfg.RsMachineAddress
 // var rs_allocater_address = cfg.RsAllocaterAddress
-// var rs_feed_address = cfg.RsFeedAddress
+// var rs_social_address = cfg.RsSocialAddress
 
 func initiateAllDB() {
 	utils.InitMongoDB(verifire_db_uri, verifire_db_name)

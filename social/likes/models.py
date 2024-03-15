@@ -4,7 +4,7 @@ from utils.exceptions import CustomException
 
 
 class Likes(DjangoCassandraModel):
-    __keyspace__ = "user_feed"
+    __keyspace__ = "user_social"
     machine_id = columns.Text(primary_key=True)
     uid = columns.Text(primary_key=True)
     like_id = columns.Text()

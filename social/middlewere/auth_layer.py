@@ -2,7 +2,7 @@ import jwt
 from django.http import JsonResponse
 from utils.exceptions import CustomException
 from jwt.exceptions import ExpiredSignatureError, DecodeError, InvalidTokenError
-from feed.env_config import ConfigUtil
+from social.env_config import ConfigUtil
 from microservice_comm.grpc_comm.verifire.user.service import UserService
 configuration = ConfigUtil().get_config_data()
 APP_SECRET = configuration.get("APP_SECRET")

@@ -5,7 +5,7 @@ from utils.exceptions import CustomException
 
 
 class Comments(DjangoCassandraModel):
-    __keyspace__ = "user_feed"
+    __keyspace__ = "user_social"
     machine_id = columns.Text(primary_key=True)
     uid = columns.Text()
     comment_id = columns.Text(primary_key=True)

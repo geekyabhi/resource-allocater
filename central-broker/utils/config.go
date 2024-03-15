@@ -13,7 +13,7 @@ type AppConfig struct {
 	// RsUserAddress                        string
 	// RsMachineAddress                     string
 	// RsAllocaterAddress                   string
-	// RsFeedAddress                        string
+	// RsSocialAddress                        string
 }
 
 func Load() (*AppConfig, error) {
@@ -31,7 +31,7 @@ func Load() (*AppConfig, error) {
 		// RsUserAddress:      os.Getenv("RS_USER_ADDRESS"),
 		// RsMachineAddress:   os.Getenv("RS_MACHINE_ADDRESS"),
 		// RsAllocaterAddress: os.Getenv("RS_ALLOCATER_ADDRESS"),
-		// RsFeedAddress:      os.Getenv("RS_FEED_ADDRESS"),
+		// RsSocialAddress:      os.Getenv("RS_SOCIAL_ADDRESS"),
 	}
 
 	return config, nil

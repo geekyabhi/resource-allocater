@@ -29,15 +29,15 @@ services:
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
-    csfeed:
+    cssocial:
         image: cassandra:latest
         environment:
             - CASSANDRA_CLUSTER_NAME=my_cluster
         volumes:
-            - ./db_vol/csfeed_data:/var/lib/cassandra/data
+            - ./db_vol/cssocial_data:/var/lib/cassandra/data
         ports:
             - "9042:9042"
-        container_name: csfeed
+        container_name: cssocial
         restart: always
     
     msalc:
@@ -128,9 +128,9 @@ services:
         ports:
             - "6382:6379"
     
-    rsfeed:
+    rssocial:
         image: redis:latest
-        container_name: rsfeed
+        container_name: rssocial
         expose:
             - 6383
         ports:
@@ -152,17 +152,17 @@ services:
             # - dockgrpc
         restart: always
     
-    feed:
+    social:
         build:
-            context: ./feed
+            context: ./social
             dockerfile: Dockerfile
         expose:
             - 5004
         ports:
             - "5004:5004"
-        container_name: feed
+        container_name: social
         depends_on:
-            - csfeed
+            - cssocial
             - mnverifire
             - verifire
         restart: always

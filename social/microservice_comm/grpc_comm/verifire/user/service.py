@@ -1,7 +1,7 @@
 import grpc
 import user_pb2
 import user_pb2_grpc
-from feed.env_config import ConfigUtil
+from social.env_config import ConfigUtil
 import json
 
 configuration = ConfigUtil().get_config_data()

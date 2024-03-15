@@ -38,7 +38,7 @@ https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
 - Implemented in Python.
 - Utilizes MySQL for permanent storage and Redis for caching.
 
-### Feed Service:
+### Social Service:
 
 - Handles comments, feedback, and likes given by users to the machine or service.
 - Implemented in Python.
@@ -103,7 +103,7 @@ In the microservices architecture, several key components contribute to the syst
 
 The project leverages a diverse set of programming languages tailored to specific tasks:
 
-- **Python:** Allocation, Feed, Docker services.
+- **Python:** Allocation, Social, Docker services.
 - **Golang:** Central Broker, Notification services , Verifire services.
 <!-- - **Rust:** Verifire, Limitify services. -->
 - **Node.js:** Interact, User, Machines services.
@@ -115,11 +115,11 @@ The project utilizes various databases tailored to specific service needs:
 
 - **MySQL:** Employed by the User Service and Allocation Service for permanent storage of user-related and allocation data, respectively.
 
-- **Cassandra:** Utilized by the Feed Service for permanent storage of comments, feedback, and likes data.
+- **Cassandra:** Utilized by the Social Service for permanent storage of comments, feedback, and likes data.
 
 - **MongoDB:** Chosen by the Verifire and Machines Services for saving rules, meta-details, and verification-related data.
 
-- **Redis:** Acts as a caching mechanism for several services, including Allocation, Feed, User, and Machines Services, optimizing performance.
+- **Redis:** Acts as a caching mechanism for several services, including Allocation, Social, User, and Machines Services, optimizing performance.
 
 These components, languages, and databases collectively form a highly decoupled , event driven robust foundation, ensuring efficiency, scalability, and real-time capabilities in the microservices ecosystem .
 

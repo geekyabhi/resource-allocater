@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from feed.env_config import ConfigUtil
+from social.env_config import ConfigUtil
 from .exceptions import CustomException
 
 configuration = ConfigUtil().get_config_data()
