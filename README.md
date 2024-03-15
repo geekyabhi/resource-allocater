@@ -12,7 +12,7 @@
 
 ----
 ## High Level Design
-![image(https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA)](https://github.com/geekyabhi/resource-allocater/assets/55759980/489e979d-3448-4025-97b1-cb07c16f1e2a)
+![image](https://github.com/geekyabhi/resource-allocater/assets/55759980/aa67fd24-fc03-4dcd-9e2c-64855fd0bbb2)
 https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
 
 <!-- <iframe style="border:none" width="800" height="450" src="https://whimsical.com/embed/AuA69B8x4jGpYofUNxtzPA"></iframe> -->
@@ -61,12 +61,6 @@ https://whimsical.com/resource-allocater-hld-AuA69B8x4jGpYofUNxtzPA
 - Responsible for interaction with the Docker daemon of the host system, managing instance creation, start/restart, and stop processes.
 - Implemented in Python.
 
-### Limitify Service:
-
-- Manages rate limiting of requests based on predefined rules.
-- Implemented in Golang.
-- Uses Redis for storing counts, etc.
-
 ### Notification Service:
 
 - Sends notifications via phone number or email triggered by other services.
@@ -110,7 +104,7 @@ In the microservices architecture, several key components contribute to the syst
 The project leverages a diverse set of programming languages tailored to specific tasks:
 
 - **Python:** Allocation, Feed, Docker services.
-- **Golang:** Central Broker, Notification services , Verifire , Limitify services.
+- **Golang:** Central Broker, Notification services , Verifire services.
 <!-- - **Rust:** Verifire, Limitify services. -->
 - **Node.js:** Interact, User, Machines services.
 - **NGINX:** Acts as a reverse proxy.
